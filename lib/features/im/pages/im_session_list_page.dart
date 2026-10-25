@@ -79,6 +79,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
     var localTools = true;
     var emoji = '😊';
     var color = const Color(0xFF5FA8D3);
+    var avatarPath = '';
     var voice = '默认';
     showDialog(
       context: context,
@@ -90,16 +91,42 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 头像选择：emoji + 底色
+                // 头像选择：本地照片 或 emoji + 底色
                 Row(
                   children: [
                     CircleAvatar(
                       radius: 26,
                       backgroundColor: color,
-                      child: Text(emoji,
-                          style: const TextStyle(fontSize: 26)),
+                      backgroundImage: avatarPath.isNotEmpty
+                          ? FileImage(File(avatarPath))
+                          : null,
+                      child: avatarPath.isEmpty
+                          ? Text(emoji, style: const TextStyle(fontSize: 26))
+                          : null,
                     ),
                     const SizedBox(width: 12),
+                    IconButton(
+                      onPressed: () async {
+                        try {
+                          final picked = await ImagePicker().pickImage(
+                              source: ImageSource.gallery, maxWidth: 512);
+                          if (picked != null) {
+                            setDlg(() => avatarPath = picked.path);
+                          }
+                        } catch (e) {
+                          debugPrint('选照片失败: $e');
+                        }
+                      },
+                      icon: const Icon(Icons.photo_library_outlined),
+                      tooltip: '从相册选头像',
+                    ),
+                    if (avatarPath.isNotEmpty)
+                      IconButton(
+                        onPressed: () => setDlg(() => avatarPath = ''),
+                        icon: const Icon(Icons.close),
+                        tooltip: '清除照片头像',
+                      ),
+                    const SizedBox(width: 4),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,30 +277,58 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
             TextButton(
                 onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
             FilledButton(
-              onPressed: () {
+              onPressed: () async {
                 final name = nameCtl.text.trim();
                 if (name.isEmpty) return;
                 final id = 'im_${DateTime.now().millisecondsSinceEpoch}';
-                KelivoContacts.saveFriend(ImFriend(
-                    id: id,
-                    name: name,
-                    gender: gender,
-                    age: ageCtl.text.trim(),
-                    note: noteCtl.text.trim(),
-                    persona: personaCtl.text.trim(),
-                    voiceEngine: voice == '默认' ? '' : voice,
-                    voiceId: voiceCtl.text.trim(),
-                    avatar: emoji,
-                    avatarColor: color.toARGB32(),
-                    memory: memoryCtl.text
-                        .split('\n')
-                        .map((e) => e.trim())
-                        .where((e) => e.isNotEmpty)
-                        .toList(),
-                    model: modelCtl.text.trim(),
-                    localTools: localTools));
-                // 自动建立会话（Rust append 自动维护会话列表）
-                KelivoStore.append(id, 'assistant', '你好，我是$name，很高兴认识你！');
+                // 照片头像复制进沙盒，持久化
+                var savedAvatarPath = '';
+                if (avatarPath.isNotEmpty) {
+                  try {
+                    final dir =
+                        await getApplicationSupportDirectory();
+                    final avDir = Directory('${dir.path}/im/avatars');
+                    if (!avDir.existsSync()) {
+                      avDir.createSync(recursive: true);
+                    }
+                    final ext = avatarPath.split('.').last;
+                    final dest = '${avDir.path}/$id.$ext';
+                    File(avatarPath).copySync(dest);
+                    savedAvatarPath = dest;
+                  } catch (e) {
+                    debugPrint('头像复制失败: $e');
+                  }
+                }
+                try {
+                  KelivoContacts.saveFriend(ImFriend(
+                      id: id,
+                      name: name,
+                      gender: gender,
+                      age: ageCtl.text.trim(),
+                      note: noteCtl.text.trim(),
+                      persona: personaCtl.text.trim(),
+                      voiceEngine: voice == '默认' ? '' : voice,
+                      voiceId: voiceCtl.text.trim(),
+                      avatar: emoji,
+                      avatarColor: color.toARGB32(),
+                      avatarPath: savedAvatarPath,
+                      memory: memoryCtl.text
+                          .split('\n')
+                          .map((e) => e.trim())
+                          .where((e) => e.isNotEmpty)
+                          .toList(),
+                      model: modelCtl.text.trim(),
+                      localTools: localTools));
+                  // 自动建立会话（Rust append 自动维护会话列表）
+                  KelivoStore.append(id, 'assistant', '你好，我是$name，很高兴认识你！');
+                } catch (e) {
+                  debugPrint('添加好友失败: $e');
+                  if (ctx.mounted) {
+                    ScaffoldMessenger.of(ctx).showSnackBar(
+                        SnackBar(content: Text('添加失败：$e')));
+                  }
+                  return;
+                }
                 Navigator.pop(ctx);
                 _load();
               },
@@ -531,19 +586,31 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
 
   Widget _avatar(ImSession s, bool isGroup) {
     final color = isGroup ? const Color(0xFF6E8B5E) : const Color(0xFF5FA8D3);
+    // 好友照片头像（avatar 字段若为本地路径则显示照片）
+    final avatarPath = !isGroup && s.avatar.startsWith('/')
+        ? s.avatar
+        : '';
     return Container(
       width: 48,
       height: 48,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       alignment: Alignment.center,
-      child: Text(
-          isGroup
-              ? '群'
-              : (s.avatar.isEmpty ? s.name.characters.first : s.avatar),
-          style: TextStyle(
-              color: Colors.white,
-              fontSize: isGroup ? 14 : 18,
-              fontWeight: FontWeight.w600)),
+      child: ClipOval(
+        child: avatarPath.isNotEmpty
+            ? Image.file(File(avatarPath),
+                width: 48, height: 48, fit: BoxFit.cover)
+            : Center(
+                child: Text(
+                    isGroup
+                        ? '群'
+                        : (s.avatar.isEmpty
+                            ? s.name.characters.first
+                            : s.avatar),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: isGroup ? 14 : 18,
+                        fontWeight: FontWeight.w600))),
+      ),
     );
   }
 }

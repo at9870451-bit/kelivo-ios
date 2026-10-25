@@ -152,6 +152,7 @@ class ImFriend {
   final String voiceId;
   final String avatar;
   final int avatarColor;
+  final String avatarPath; // 本地照片头像路径（空=用 emoji/文字）
   final List<String> memory; // 长期记忆
   final String model; // 专属模型（空=全局）
   final bool localTools; // 本地工具开关
@@ -167,6 +168,7 @@ class ImFriend {
     this.voiceId = '',
     this.avatar = '',
     this.avatarColor = 0xFF5FA8D3,
+    this.avatarPath = '',
     List<String>? memory,
     this.model = '',
     this.localTools = true,
@@ -183,6 +185,7 @@ class ImFriend {
         voiceId: j['voiceId']?.toString() ?? '',
         avatar: j['avatar']?.toString() ?? '',
         avatarColor: (j['avatarColor'] as num?)?.toInt() ?? 0xFF5FA8D3,
+        avatarPath: j['avatarPath']?.toString() ?? '',
         memory: (j['memory'] as List?)?.map((e) => e.toString()).toList() ??
             const [],
         model: j['model']?.toString() ?? '',
@@ -202,6 +205,7 @@ class ImFriend {
             ? String.fromCharCode(name.runes.first)
             : avatar,
         'avatarColor': avatarColor,
+        'avatarPath': avatarPath,
         'memory': memory,
         'model': model,
         'localTools': localTools,
