@@ -82,7 +82,7 @@ class _CollapsibleUserTextState extends State<CollapsibleUserText> {
     if (_overflowing) {
       clipped = ShaderMask(
         blendMode: BlendMode.dstIn,
-        shaderCallback: (rect) => const ui.Gradient.linear(Offset.zero, Offset.zero, [1.0, 1.0]).createShader(rect),
+        shaderCallback: (rect) => ui.Gradient.linear(Offset.zero, Offset.zero, const [Colors.white, Colors.white]),
         child: clipped,
       );
     }

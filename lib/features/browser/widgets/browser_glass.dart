@@ -1176,6 +1176,97 @@ class _GlassTouchLightPainter extends CustomPainter {
       Paint()
         ..color = colors.first,
     );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_GlassTouchLightPainter oldDelegate) =>
+      radius != oldDelegate.radius ||
+      intensity != oldDelegate.intensity ||
+      position != oldDelegate.position ||
+      touch != oldDelegate.touch ||
+      dark != oldDelegate.dark;
+}
+
+/// Passive drag affordance retained for browser groups with their own controls.
+class BrowserSpring extends StatelessWidget {
+  const BrowserSpring({super.key, required this.child, this.draggable = true});
+
+  final Widget child;
+  final bool draggable;
+
+  @override
+  Widget build(BuildContext context) =>
+      BrowserPress(draggable: draggable, child: child);
+}
+
+/// Static silver silk: enough edges and tonal depth for optical glass to bend,
+/// with no image capture, asset decoding, animated noise, or idle tickers.
+class BrowserWallpaper extends StatelessWidget {
+  const BrowserWallpaper({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => RepaintBoundary(
+    child: CustomPaint(
+      painter: _WallpaperPainter(
+        colors: Theme.of(context).colorScheme,
+        highContrast: MediaQuery.highContrastOf(context),
+      ),
+      child: child,
+    ),
+  );
+}
+
+class _WallpaperPainter extends CustomPainter {
+  const _WallpaperPainter({required this.colors, required this.highContrast});
+
+  final ColorScheme colors;
+  bool get dark => colors.brightness == Brightness.dark;
+  final bool highContrast;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..color = colors.surface
+    );
+    if (highContrast) return;
+    canvas.save();
+    canvas.clipRect(rect);
+    final h = size.height;
+    final w = size.width;
+    for (var i = 0; i < 5; i++) {
+      final shift = i * h * .055;
+      final ribbon = Path()
+        ..moveTo(-w * .3, h * .70 + shift)
+        ..cubicTo(
+          w * .20,
+          h * .48 + shift,
+          w * .38,
+          h * 1.08 + shift,
+          w * 1.25,
+          h * .60 + shift,
+        )
+        ..lineTo(w * 1.25, h * .78 + shift)
+        ..cubicTo(
+          w * .40,
+          h * 1.22 + shift,
+          w * .10,
+          h * .57 + shift,
+          -w * .3,
+          h * .90 + shift,
+        )
+        ..close();
+      canvas.drawPath(
+        ribbon,
+        Paint()
+          ..color = colors.onSurface.withValues(alpha: dark ? .05 : .025),
+      );
+    }
     final grain = math.Random(17);
     final dot = Paint()
       ..color = (dark ? Colors.white : Colors.black).withValues(

@@ -162,7 +162,7 @@ class _ThinkingSheenAnimationState extends State<_ThinkingSheenAnimation>
           return ShaderMask(
             blendMode: BlendMode.srcIn,
             shaderCallback: (bounds) {
-              return ui.Gradient.linear(Offset.zero, Offset.zero, [base, base]).createShader(bounds);
+              return ui.Gradient.linear(Offset.zero, Offset.zero, [base, base]);
             },
             child: child,
           );

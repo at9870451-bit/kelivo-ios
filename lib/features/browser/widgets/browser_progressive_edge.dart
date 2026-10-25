@@ -62,7 +62,7 @@ class BrowserProgressiveEdge extends StatelessWidget {
               ),
             DecoratedBox(
               decoration: BoxDecoration(
-                color: 1,
+                color: color.withValues(alpha: .64),
               ),
             ),
           ],
