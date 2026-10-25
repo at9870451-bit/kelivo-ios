@@ -65,6 +65,13 @@ jobs:
           echo "=== Rust 静态库 ==="
           ls -lh ios/sandbox/build/iphoneos/libkelivo_core.a
 
+      - name: Runner 工程注入链接设置（force_load + 禁 strip，保 FFI 符号）
+        run: |
+          gem install xcodeproj --no-document 2>&1 | tail -2
+          ruby ios/fix_xcodeproj.rb
+          echo "=== 注入完成 ==="
+          grep -n "kelivo_core\|force_load" ios/Runner.xcodeproj/project.pbxproj | head -5
+
       - name: 构建 iOS（未签名）
         run: |
           set -o pipefail
