@@ -11,7 +11,7 @@ import 'package:flutter/services.dart' show MethodChannel;
 /// 新版 Flutter SDK：lookupFunction<T extends Function, R extends Function>
 /// 直接传函数签名（内部自动包装 NativeFunction）。
 typedef _CallFn = Pointer<Utf8> Function(Pointer<Utf8>);
-typedef _FreeFn = void Function(Pointer<Utf8>);
+typedef _FreeFn = Void Function(Pointer<Utf8>);
 
 class KelivoBridge {
   KelivoBridge._();
