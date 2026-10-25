@@ -169,7 +169,9 @@ class ImFriend {
         'name': name,
         'gender': gender,
         'note': note,
-        'avatar': avatar.isEmpty && name.isNotEmpty ? name.characters.first : avatar,
+        'avatar': avatar.isEmpty && name.isNotEmpty
+          ? String.fromCharCode(name.runes.first)
+          : avatar,
       };
 }
 

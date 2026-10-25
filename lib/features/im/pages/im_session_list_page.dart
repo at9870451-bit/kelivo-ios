@@ -284,7 +284,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('信息',
+        title: Text('信息',
             style: TextStyle(fontWeight: AppFontWeights.semibold)),
         actions: [
           IconButton(
@@ -339,7 +339,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style:
-                          const TextStyle(fontWeight: AppFontWeights.medium)),
+                          TextStyle(fontWeight: AppFontWeights.medium)),
                   subtitle: Text(
                     s.last.isEmpty ? '打个招呼吧～' : s.last,
                     maxLines: 1,
