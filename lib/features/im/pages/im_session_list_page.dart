@@ -58,39 +58,169 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
     return '${d.month}/${d.day}';
   }
 
-  // ---- 添加好友（微信风格） ----
+  // ---- 添加好友（头像/性别/年龄/人设/语音模型） ----
+  static const _avatarEmojis = ['😀','😊','😎','🥰','🤗','😇','🐱','🐶','🌸','🌙','⭐','🎀'];
+  static const _avatarColors = [
+    Color(0xFF5FA8D3), Color(0xFFF2A65A), Color(0xFF8E8ED8),
+    Color(0xFF6E8B5E), Color(0xFFD87373), Color(0xFF4FA8A8),
+    Color(0xFFB886C8), Color(0xFF7A8B99),
+  ];
+  static const _voiceModels = ['默认', '本地朗读', '模型音色', '硅基流动', '豆包'];
+
   void _addFriendSheet() {
     final nameCtl = TextEditingController();
+    final ageCtl = TextEditingController();
     final noteCtl = TextEditingController();
+    final personaCtl = TextEditingController();
+    final voiceCtl = TextEditingController();
     var gender = 'female';
+    var emoji = '😊';
+    var color = const Color(0xFF5FA8D3);
+    var voice = '默认';
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDlg) => AlertDialog(
           title: const Text('添加好友'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameCtl,
-                autofocus: true,
-                decoration: const InputDecoration(labelText: '昵称'),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: noteCtl,
-                decoration: const InputDecoration(labelText: '备注（可选）'),
-              ),
-              const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'female', label: Text('女')),
-                  ButtonSegment(value: 'male', label: Text('男')),
-                ],
-                selected: {gender},
-                onSelectionChanged: (s) => setDlg(() => gender = s.first),
-              ),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 头像选择：emoji + 底色
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 26,
+                      backgroundColor: color,
+                      child: Text(emoji,
+                          style: const TextStyle(fontSize: 26)),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            spacing: 4,
+                            children: [
+                              for (final e in _avatarEmojis)
+                                GestureDetector(
+                                  onTap: () => setDlg(() => emoji = e),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(3),
+                                    decoration: BoxDecoration(
+                                      color: emoji == e
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withValues(alpha: 0.15)
+                                          : null,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(e,
+                                        style: const TextStyle(fontSize: 16)),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 6,
+                            children: [
+                              for (final c in _avatarColors)
+                                GestureDetector(
+                                  onTap: () => setDlg(() => color = c),
+                                  child: Container(
+                                    width: 18,
+                                    height: 18,
+                                    decoration: BoxDecoration(
+                                      color: c,
+                                      shape: BoxShape.circle,
+                                      border: color == c
+                                          ? Border.all(
+                                              width: 2,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary)
+                                          : null,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: nameCtl,
+                  autofocus: true,
+                  decoration: const InputDecoration(labelText: '昵称'),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: ageCtl,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(labelText: '年龄'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    SegmentedButton<String>(
+                      segments: const [
+                        ButtonSegment(value: 'female', label: Text('女')),
+                        ButtonSegment(value: 'male', label: Text('男')),
+                      ],
+                      selected: {gender},
+                      onSelectionChanged: (s) =>
+                          setDlg(() => gender = s.first),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: noteCtl,
+                  decoration: const InputDecoration(labelText: '备注（可选）'),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: personaCtl,
+                  maxLines: 2,
+                  decoration: const InputDecoration(
+                      labelText: '人设',
+                      hintText: '例如：温柔细心，喜欢咖啡和猫'),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        initialValue: voice,
+                        decoration: const InputDecoration(labelText: '语音模型'),
+                        items: [
+                          for (final v in _voiceModels)
+                            DropdownMenuItem(value: v, child: Text(v)),
+                        ],
+                        onChanged: (v) => setDlg(() => voice = v ?? '默认'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: voiceCtl,
+                        decoration:
+                            const InputDecoration(labelText: '音色 ID（可空）'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -101,8 +231,17 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                 if (name.isEmpty) return;
                 final id = 'im_${DateTime.now().millisecondsSinceEpoch}';
                 KelivoContacts.saveFriend(ImFriend(
-                    id: id, name: name, gender: gender, note: noteCtl.text.trim()));
-                // 自动建立空会话（进聊天即出现）
+                    id: id,
+                    name: name,
+                    gender: gender,
+                    age: ageCtl.text.trim(),
+                    note: noteCtl.text.trim(),
+                    persona: personaCtl.text.trim(),
+                    voiceEngine: voice == '默认' ? '' : voice,
+                    voiceId: voiceCtl.text.trim(),
+                    avatar: emoji,
+                    avatarColor: color.toARGB32()));
+                // 自动建立会话（Rust append 自动维护会话列表）
                 KelivoStore.append(id, 'assistant', '你好，我是$name，很高兴认识你！');
                 Navigator.pop(ctx);
                 _load();
@@ -360,7 +499,6 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
   }
 
   Widget _avatar(ImSession s, bool isGroup) {
-    final cs = Theme.of(context).colorScheme;
     final color = isGroup ? const Color(0xFF6E8B5E) : const Color(0xFF5FA8D3);
     return Container(
       width: 48,

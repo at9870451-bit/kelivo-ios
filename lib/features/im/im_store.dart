@@ -140,38 +140,58 @@ class KelivoStore {
       KelivoBridge.call('crypto.crc32', {'data': data})['crc32'] as String;
 }
 
-/// 好友（微信风格联系人）
+/// 好友（微信风格联系人：头像 emoji+颜色 / 性别 / 年龄 / 人设 / 语音模型）
 class ImFriend {
   final String id;
   final String name;
   final String gender;
+  final String age;
   final String note;
+  final String persona;
+  final String voiceEngine;
+  final String voiceId;
   final String avatar;
+  final int avatarColor;
 
   const ImFriend({
     required this.id,
     required this.name,
     this.gender = '',
+    this.age = '',
     this.note = '',
+    this.persona = '',
+    this.voiceEngine = '',
+    this.voiceId = '',
     this.avatar = '',
+    this.avatarColor = 0xFF5FA8D3,
   });
 
   factory ImFriend.fromJson(Map<String, dynamic> j) => ImFriend(
         id: j['id']?.toString() ?? '',
         name: j['name']?.toString() ?? '',
         gender: j['gender']?.toString() ?? '',
+        age: j['age']?.toString() ?? '',
         note: j['note']?.toString() ?? '',
+        persona: j['persona']?.toString() ?? '',
+        voiceEngine: j['voiceEngine']?.toString() ?? '',
+        voiceId: j['voiceId']?.toString() ?? '',
         avatar: j['avatar']?.toString() ?? '',
+        avatarColor: (j['avatarColor'] as num?)?.toInt() ?? 0xFF5FA8D3,
       );
 
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
         'gender': gender,
+        'age': age,
         'note': note,
+        'persona': persona,
+        'voiceEngine': voiceEngine,
+        'voiceId': voiceId,
         'avatar': avatar.isEmpty && name.isNotEmpty
-          ? String.fromCharCode(name.runes.first)
-          : avatar,
+            ? String.fromCharCode(name.runes.first)
+            : avatar,
+        'avatarColor': avatarColor,
       };
 }
 

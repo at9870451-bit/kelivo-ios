@@ -133,12 +133,58 @@ pub fn append(key: &str, role: &str, content: &str) -> usize {
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_micros() as u64)
         .unwrap_or(0);
+    let ts = now_ts();
     msgs.push(json!({
         "id": id, "role": role, "content": content,
-        "ts": now_ts(), "read": false,
+        "ts": ts, "read": false,
     }));
     write_json(&history_file(key), &json!(msgs));
+    // 维护会话列表：按 key 查找联系人名称与类型，upsert sessions.json
+    upsert_session(key, role, content, msgs.len(), ts);
     msgs.len()
+}
+
+/// 更新/新建会话列表项（名称源于好友/群组表；未知 key 用 key 本身）
+fn upsert_session(key: &str, role: &str, content: &str, msg_count: usize, ts: f64) {
+    let mut is_group = key.starts_with("im_g_");
+    let mut name = key.to_string();
+    let mut avatar = String::new();
+    if is_group {
+        for g in groups() {
+            if g.get("id").and_then(|v| v.as_str()).unwrap_or("") == key {
+                name = g.get("name").and_then(|v| v.as_str()).unwrap_or(key).to_string();
+                avatar = "群".to_string();
+                break;
+            }
+        }
+    } else {
+        for f in friends() {
+            if f.get("id").and_then(|v| v.as_str()).unwrap_or("") == key {
+                name = f.get("name").and_then(|v| v.as_str()).unwrap_or(key).to_string();
+                avatar = f
+                    .get("avatar")
+                    .and_then(|v| v.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                break;
+            }
+        }
+    }
+    // seed 会话（im_xiaoman 等）已在 sessions.json——仅 upsert
+    let mut list = sessions();
+    list.retain(|s| s.get("id").and_then(|v| v.as_str()).unwrap_or("") != key);
+    list.push(json!({
+        "id": key,
+        "name": name,
+        "kind": if is_group { "group" } else { "friend" },
+        "avatar": if avatar.is_empty() {
+            name.chars().next().map(|c| c.to_string()).unwrap_or_default()
+        } else { avatar },
+        "last": content,
+        "ts": ts,
+        "count": msg_count,
+    }));
+    save_sessions(&list);
 }
 
 pub fn replace(key: &str, msgs: &Value) -> usize {
