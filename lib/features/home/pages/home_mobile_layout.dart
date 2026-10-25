@@ -134,7 +134,12 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           resizeToAvoidBottomInset: true,
           extendBodyBehindAppBar: true,
           backgroundColor: Colors.transparent,
-          appBar: widget.appBarOverride ?? _buildAppBar(context, cs),
+          // 顶部功能（汉堡/新对话/地图/临时对话）只在「会话」tab 显示；
+          // 消息/设置 tab 使用各自页面自带顶部（或无顶部）。
+          appBar: switch (_tab) {
+            1 => widget.appBarOverride ?? _buildAppBar(context, cs),
+            _ => null,
+          },
           // 底部导航栏：消息(IM) / 聊天 / 设置
           body: switch (_tab) {
             0 => const ImSessionListPage(),
