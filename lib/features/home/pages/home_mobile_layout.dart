@@ -139,7 +139,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           body: switch (_tab) {
             0 => const ImSessionListPage(),
             1 => widget.body,
-            _ => const SettingsPage(),
+            _ => const SettingsPage(embedded: true),
           },
           bottomNavigationBar: _GlassNavBar(
             selectedIndex: _tab,

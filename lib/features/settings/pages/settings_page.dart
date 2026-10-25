@@ -39,7 +39,10 @@ import 'package:Kelivo/theme/app_font_weights.dart';
 import 'package:Kelivo/theme/app_semantic_colors.dart';
 
 class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
+  /// embedded=true：作为底部导航栏 tab 内嵌（隐藏顶部返回箭头与标题栏）
+  final bool embedded;
+
+  const SettingsPage({super.key, this.embedded = false});
 
   @override
   Widget build(BuildContext context) {
@@ -119,18 +122,20 @@ class SettingsPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        leading: Tooltip(
-          message: l10n.settingsPageBackButton,
-          child: _TactileIconButton(
-            icon: Lucide.ArrowLeft,
-            color: cs.onSurface,
-            size: 22,
-            onTap: () => Navigator.of(context).maybePop(),
-          ),
-        ),
-        title: Text(l10n.settingsPageTitle),
-      ),
+      appBar: embedded
+          ? null
+          : AppBar(
+              leading: Tooltip(
+                message: l10n.settingsPageBackButton,
+                child: _TactileIconButton(
+                  icon: Lucide.ArrowLeft,
+                  color: cs.onSurface,
+                  size: 22,
+                  onTap: () => Navigator.of(context).maybePop(),
+                ),
+              ),
+              title: Text(l10n.settingsPageTitle),
+            ),
       body: SettingsSearchList(
         onSearch: (origin) => showMobileSettingsSearch(
           context,
