@@ -226,11 +226,11 @@ class _TopOverlayFade extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surface = theme.colorScheme.surface;
-    final gradient = ;
+    final gradient = theme.colorScheme.surface;
 
     return IgnorePointer(
       key: const Key('chat-input-overlay-top-fade'),
-      child: DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
+      child: DecoratedBox(decoration: BoxDecoration(color: gradient)),
     );
   }
 }
@@ -247,7 +247,7 @@ class _BottomOverlayFade extends StatelessWidget {
 
     return IgnorePointer(
       key: const Key('chat-input-overlay-bottom-fade'),
-      child: DecoratedBox(decoration: BoxDecoration(gradient: gradient)),
+      child: DecoratedBox(decoration: BoxDecoration(color: gradient)),
     );
   }
 }

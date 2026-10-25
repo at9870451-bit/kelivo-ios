@@ -580,8 +580,15 @@ class _HsvColorPickerState extends State<HsvColorPicker> {
                       height: h,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(h / 2),
-                        color: for (var i = 0; i <= 6; i++)
+                        // 功能色轮（HSV 取色器）：梯度用于色相环，非装饰
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            for (var i = 0; i <= 6; i++)
                               HSVColor.fromAHSV(1, i * 60.0, 1, 1).toColor(),
+                          ],
+                        ),
                       ),
                     ),
                     Positioned(
