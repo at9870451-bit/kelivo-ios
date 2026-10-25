@@ -45,7 +45,7 @@ jobs:
 
       - name: 沙箱构建工具
         run: |
-          brew install meson ninja llvm lld 2>&1 | tail -5
+          brew install meson ninja llvm lld libarchive 2>&1 | tail -5
 
       - name: 准备 iSH 沙箱产物
         run: |
