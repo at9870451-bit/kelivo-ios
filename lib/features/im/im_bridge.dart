@@ -8,8 +8,10 @@ import 'package:ffi/ffi.dart';
 
 import 'package:flutter/services.dart' show MethodChannel;
 
-typedef _CallNative = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef _CallNative = NativeFunction<Pointer<Utf8> Function(Pointer<Utf8>)>;
+typedef _CallDart = Pointer<Utf8> Function(Pointer<Utf8>);
 typedef _FreeNative = NativeFunction<Void Function(Pointer<Utf8>)>;
+typedef _FreeDart = void Function(Pointer<Utf8>);
 
 class KelivoBridge {
   KelivoBridge._();
@@ -24,8 +26,8 @@ class KelivoBridge {
     return DynamicLibrary.open('libkelivo_core.so');
   }
 
-  static final _call = _lib.lookupFunction<_CallNative, _CallNative>('kelivo_call');
-  static final _free = _lib.lookupFunction<_FreeNative, _FreeNative>('kelivo_free');
+  static final _call = _lib.lookupFunction<_CallNative, _CallDart>('kelivo_call');
+  static final _free = _lib.lookupFunction<_FreeNative, _FreeDart>('kelivo_free');
 
   /// 同步调用 Rust：{"method","params"} → {"ok","data"} 信封
   static Map<String, dynamic> call(String method, Map<String, dynamic> params) {
