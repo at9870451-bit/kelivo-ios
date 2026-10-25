@@ -2943,16 +2943,7 @@ class _SideDrawerState extends State<SideDrawer> with TickerProviderStateMixin {
                 child: Container(
                   height: 20,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        cs.surface.withValues(alpha: 0.0),
-                        cs.surface.withValues(alpha: 0.8),
-                        cs.surface.withValues(alpha: 1.0),
-                      ],
-                      stops: const [0.0, 0.6, 1.0],
-                    ),
+                    color: cs.surface.withValues(alpha: 0.0),
                   ),
                 ),
               ),

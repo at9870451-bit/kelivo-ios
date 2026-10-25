@@ -162,12 +162,7 @@ class TerminalKeyBar extends StatelessWidget {
                         child: IgnorePointer(
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  cs.surface.withValues(alpha: 0),
-                                  cs.surface,
-                                ],
-                              ),
+                              color: cs.surface.withValues(alpha: 0),
                             ),
                           ),
                         ),

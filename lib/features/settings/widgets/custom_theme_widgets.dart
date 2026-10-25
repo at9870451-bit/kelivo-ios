@@ -518,18 +518,12 @@ class _HsvColorPickerState extends State<HsvColorPicker> {
                     children: [
                       Container(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [const Color(0xFFFFFFFF), hueColor],
-                          ),
+                          gradient: null, // Apple 纯色:  color: Color(0xFFFFFFFF),
                         ),
                       ),
                       const DecoratedBox(
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [Color(0x00000000), Color(0xFF000000)],
-                          ),
+                          gradient: null, // Apple 纯色:  color: Color(0x00000000),
                         ),
                       ),
                       Positioned(
@@ -586,12 +580,8 @@ class _HsvColorPickerState extends State<HsvColorPicker> {
                       height: h,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(h / 2),
-                        gradient: LinearGradient(
-                          colors: [
-                            for (var i = 0; i <= 6; i++)
+                        color: for (var i = 0; i <= 6; i++)
                               HSVColor.fromAHSV(1, i * 60.0, 1, 1).toColor(),
-                          ],
-                        ),
                       ),
                     ),
                     Positioned(

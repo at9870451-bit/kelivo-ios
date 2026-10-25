@@ -1050,12 +1050,7 @@ class _SegTabBarState extends State<_SegTabBar> {
                           child: IgnorePointer(
                             child: DecoratedBox(
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    shellBg,
-                                    shellBg.withValues(alpha: 0),
-                                  ],
-                                ),
+                                color: shellBg,
                               ),
                             ),
                           ),
@@ -1069,12 +1064,7 @@ class _SegTabBarState extends State<_SegTabBar> {
                           child: IgnorePointer(
                             child: DecoratedBox(
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    shellBg.withValues(alpha: 0),
-                                    shellBg,
-                                  ],
-                                ),
+                                color: shellBg.withValues(alpha: 0),
                               ),
                             ),
                           ),

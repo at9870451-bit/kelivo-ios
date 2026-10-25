@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -404,17 +405,7 @@ class _MemoryFadingHorizontalScrollState
           ShaderMask(
             blendMode: BlendMode.dstIn,
             shaderCallback: (bounds) {
-              return LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  _showStartFade ? Colors.transparent : Colors.white,
-                  Colors.white,
-                  Colors.white,
-                  _showEndFade ? Colors.transparent : Colors.white,
-                ],
-                stops: const [0.0, 0.1, 0.9, 1.0],
-              ).createShader(bounds);
+              return ui.Gradient.linear(Offset.zero, Offset.zero, [1.0, 1.0]).createShader(bounds);
             },
             child: SingleChildScrollView(
               controller: _controller,

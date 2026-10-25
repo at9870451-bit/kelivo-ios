@@ -189,9 +189,7 @@ class _SliderPainter extends CustomPainter {
         _trackHeight,
       );
       final fillPaint = Paint()
-        ..shader = LinearGradient(
-          colors: [primary.withValues(alpha: 0.5), primary],
-        ).createShader(fillRect);
+        ..color = primary.withValues(alpha: 0.5);
       canvas.save();
       canvas.clipRRect(trackRRect);
       canvas.drawRect(fillRect, fillPaint);

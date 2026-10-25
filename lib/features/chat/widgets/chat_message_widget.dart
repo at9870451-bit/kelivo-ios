@@ -5521,17 +5521,7 @@ class _ChainOfThoughtReasoningStepState
             const double bottomFade = 28;
             final double sTop = (topFade / h).clamp(0.0, 1.0);
             final double sBot = (1.0 - bottomFade / h).clamp(0.0, 1.0);
-            return LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: const [
-                Color(0x00FFFFFF), // color-gate: ignore (dstIn alpha mask)
-                Color(0xFFFFFFFF), // color-gate: ignore (dstIn alpha mask)
-                Color(0xFFFFFFFF), // color-gate: ignore (dstIn alpha mask)
-                Color(0x00FFFFFF), // color-gate: ignore (dstIn alpha mask)
-              ],
-              stops: [0.0, sTop, sBot, 1.0],
-            ).createShader(rect);
+            return ui.Gradient.linear(Offset.zero, Offset.zero, [1.0, 1.0]).createShader(rect);
           },
           blendMode: BlendMode.dstIn,
           child: SingleChildScrollView(
@@ -8013,17 +8003,7 @@ class _ReasoningSectionState extends State<_ReasoningSection> {
               const double bottomFade = 28.0;
               final double sTop = (topFade / h).clamp(0.0, 1.0);
               final double sBot = (1.0 - bottomFade / h).clamp(0.0, 1.0);
-              return LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: const [
-                  Color(0x00FFFFFF), // color-gate: ignore (dstIn alpha mask)
-                  Color(0xFFFFFFFF), // color-gate: ignore (dstIn alpha mask)
-                  Color(0xFFFFFFFF), // color-gate: ignore (dstIn alpha mask)
-                  Color(0x00FFFFFF), // color-gate: ignore (dstIn alpha mask)
-                ],
-                stops: [0.0, sTop, sBot, 1.0],
-              ).createShader(rect);
+              return ui.Gradient.linear(Offset.zero, Offset.zero, [1.0, 1.0]).createShader(rect);
             },
             blendMode: BlendMode.dstIn,
             child: NotificationListener<ScrollUpdateNotification>(

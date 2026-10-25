@@ -55,16 +55,7 @@ class UserMessageEditOverlay extends StatelessWidget {
                     ),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: const [0.0, 0.85, 1.0],
-                          colors: [
-                            cs.surface.withValues(alpha: isDark ? 0.86 : 0.90),
-                            cs.surface.withValues(alpha: isDark ? 0.80 : 0.84),
-                            cs.surface.withValues(alpha: isDark ? 0.78 : 0.82),
-                          ],
-                        ),
+                        color: cs.surface.withValues(alpha: isDark ? 0.86 : 0.90),
                       ),
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import '../../../icons/lucide_adapter.dart';
@@ -81,12 +82,7 @@ class _CollapsibleUserTextState extends State<CollapsibleUserText> {
     if (_overflowing) {
       clipped = ShaderMask(
         blendMode: BlendMode.dstIn,
-        shaderCallback: (rect) => const LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Colors.white, Colors.white, Colors.transparent],
-          stops: [0.0, 0.72, 1.0],
-        ).createShader(rect),
+        shaderCallback: (rect) => const ui.Gradient.linear(Offset.zero, Offset.zero, [1.0, 1.0]).createShader(rect),
         child: clipped,
       );
     }

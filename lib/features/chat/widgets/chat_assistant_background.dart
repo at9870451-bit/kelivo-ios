@@ -111,14 +111,7 @@ class ChatAssistantBackground extends StatelessWidget {
     final mask = IgnorePointer(
       child: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              cs.surface.withValues(alpha: topAlpha),
-              cs.surface.withValues(alpha: bottomAlpha),
-            ],
-          ),
+          color: cs.surface.withValues(alpha: topAlpha),
         ),
       ),
     );

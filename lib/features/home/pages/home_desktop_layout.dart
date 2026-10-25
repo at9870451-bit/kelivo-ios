@@ -1083,14 +1083,7 @@ class DesktopBackgroundLayer extends StatelessWidget {
           if (bg != null) Opacity(opacity: 0.9, child: bg),
           DecoratedBox(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  cs.surface.withValues(alpha: 0.08),
-                  cs.surface.withValues(alpha: 0.36),
-                ],
-              ),
+              color: cs.surface.withValues(alpha: 0.08),
             ),
           ),
         ],

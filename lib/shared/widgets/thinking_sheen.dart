@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class ThinkingSheenParams {
@@ -161,13 +162,7 @@ class _ThinkingSheenAnimationState extends State<_ThinkingSheenAnimation>
           return ShaderMask(
             blendMode: BlendMode.srcIn,
             shaderCallback: (bounds) {
-              return LinearGradient(
-                begin: const Alignment(-1.0, -0.18),
-                end: const Alignment(1.0, 0.18),
-                colors: [base, base, mid, peak, mid, base, base],
-                stops: _sheenStops(widget.params.spread),
-                transform: _SlideGradientTransform(_controller.value),
-              ).createShader(bounds);
+              return ui.Gradient.linear(Offset.zero, Offset.zero, [base, base]).createShader(bounds);
             },
             child: child,
           );

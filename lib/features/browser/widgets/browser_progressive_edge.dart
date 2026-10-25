@@ -62,29 +62,7 @@ class BrowserProgressiveEdge extends StatelessWidget {
               ),
             DecoratedBox(
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: top ? Alignment.topCenter : Alignment.bottomCenter,
-                  end: top ? Alignment.bottomCenter : Alignment.topCenter,
-                  colors: fadeToolbar
-                      ? [
-                          color.withValues(alpha: .64),
-                          color.withValues(alpha: .40),
-                          color.withValues(alpha: .06),
-                          color.withValues(alpha: 0),
-                        ]
-                      : [
-                          color.withValues(
-                            alpha: reduced ? .98 : (filterBackdrop ? .22 : .64),
-                          ),
-                          color.withValues(
-                            alpha: reduced ? .7 : (filterBackdrop ? .06 : .16),
-                          ),
-                          color.withValues(alpha: 0),
-                        ],
-                  stops: fadeToolbar
-                      ? const [0, .18, .42, 1]
-                      : const [0, .55, 1],
-                ),
+                color: 1,
               ),
             ),
           ],

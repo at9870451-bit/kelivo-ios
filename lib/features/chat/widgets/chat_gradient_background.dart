@@ -250,26 +250,7 @@ class _GradientArtwork {
   _GradientArtwork(this.size, this.dark, this.offset) {
     final rect = Offset.zero & size;
     _base = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        stops: const [0, 0.22, 0.45, 0.65, 1],
-        colors: dark
-            ? const [
-                Color(0xFF1B2A45),
-                Color(0xFF15223A),
-                Color(0xFF0D1626),
-                Color(0xFF0A0F18),
-                Color(0xFF080B12),
-              ]
-            : const [
-                Color(0xFFAFD0F2),
-                Color(0xFFCBE0F6),
-                Color(0xFFF1F7FD),
-                Colors.white,
-                Colors.white,
-              ],
-      ).createShader(rect.shift(Offset(0, offset.dy * size.height * 0.5)));
+      ..color = Color(0xFF1B2A45);
     final r = math.max(size.width, size.height);
     _radii = [r * 0.36, r * 0.28, r * 0.30, r * 0.26];
     final colors = dark
@@ -289,12 +270,7 @@ class _GradientArtwork {
     _blobs = List.generate(
       4,
       (i) => Paint()
-        ..shader = RadialGradient(
-          colors: [
-            colors[i].withValues(alpha: alphas[i]),
-            colors[i].withValues(alpha: 0),
-          ],
-        ).createShader(Rect.fromCircle(center: Offset.zero, radius: _radii[i])),
+        ..color = colors[i],
     );
     assert(() {
       debugGradientShaderBuildCount += 5;

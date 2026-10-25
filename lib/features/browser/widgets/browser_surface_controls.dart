@@ -771,11 +771,7 @@ class _BrowserSwitchState extends State<BrowserSwitch>
                   height: desktop ? 18 : 26,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Colors.white, Color(0xffeeeeee)],
-                    ),
+                    gradient: null, // Apple 纯色:  const color: Colors.white,
                     boxShadow: const [
                       BoxShadow(
                         color: Color(0x25000000),

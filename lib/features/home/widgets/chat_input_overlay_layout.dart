@@ -1,3 +1,4 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class ChatInputOverlayLayout extends StatelessWidget {
@@ -187,17 +188,7 @@ class _TopBackgroundFade extends StatelessWidget {
     return ShaderMask(
       blendMode: BlendMode.dstIn,
       shaderCallback: (bounds) {
-        return LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0.0, 0.48, 0.78, 1.0],
-          colors: [
-            surface,
-            surface,
-            surface.withValues(alpha: 0.9),
-            surface.withValues(alpha: 0),
-          ],
-        ).createShader(Rect.fromLTWH(0, 0, bounds.width, height));
+        return ui.Gradient.linear(Offset.zero, Offset.zero, [const Color(0xFF000000), const Color(0xFF000000)]).createShader(Rect.fromLTWH(0, 0, bounds.width, height));
       },
       child: child,
     );
@@ -218,16 +209,7 @@ class _BottomBackgroundFade extends StatelessWidget {
     return ShaderMask(
       blendMode: BlendMode.dstIn,
       shaderCallback: (bounds) {
-        return LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          stops: const [0.0, 0.48, 1.0],
-          colors: [
-            surface.withValues(alpha: 0),
-            surface.withValues(alpha: isDark ? 0.74 : 0.82),
-            surface.withValues(alpha: isDark ? 0.92 : 0.98),
-          ],
-        ).createShader(
+        return ui.Gradient.linear(Offset.zero, Offset.zero, [const Color(0xFF000000), const Color(0xFF000000)]).createShader(
           Rect.fromLTWH(0, bounds.height - height, bounds.width, height),
         );
       },
@@ -244,17 +226,7 @@ class _TopOverlayFade extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surface = theme.colorScheme.surface;
-    final gradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      stops: const [0.0, 0.48, 0.78, 1.0],
-      colors: [
-        surface.withValues(alpha: 1.0),
-        surface.withValues(alpha: isDark ? 0.96 : 0.99),
-        surface.withValues(alpha: isDark ? 0.74 : 0.88),
-        surface.withValues(alpha: 0),
-      ],
-    );
+    final gradient = ;
 
     return IgnorePointer(
       key: const Key('chat-input-overlay-top-fade'),
@@ -271,16 +243,7 @@ class _BottomOverlayFade extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surface = theme.colorScheme.surface;
-    final gradient = LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      stops: const [0.0, 0.48, 1.0],
-      colors: [
-        surface.withValues(alpha: 0),
-        surface.withValues(alpha: isDark ? 0.64 : 0.82),
-        surface.withValues(alpha: isDark ? 0.92 : 0.98),
-      ],
-    );
+    final gradient = ;
 
     return IgnorePointer(
       key: const Key('chat-input-overlay-bottom-fade'),
