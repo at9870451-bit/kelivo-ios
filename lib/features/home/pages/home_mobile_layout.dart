@@ -97,7 +97,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
     final l10n = AppLocalizations.of(context)!;
 
     return InteractiveDrawer(
-      controller: drawerController,
+      controller: widget.drawerController,
       side: DrawerSide.left,
       drawerWidth: MediaQuery.sizeOf(context).width * 0.75,
       scrimColor: cs.onSurface,
@@ -106,37 +106,37 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
       drawer: SideDrawer(
         userName: context.watch<UserProvider>().name,
         assistantName: _getAssistantName(context),
-        closePickerTicker: assistantPickerCloseTick,
-        loadingConversationIds: loadingConversationIds,
-        globalSearchMode: globalSearchMode,
-        globalSearchQuery: globalSearchQuery,
-        onGlobalSearchQueryChanged: onGlobalSearchQueryChanged,
-        onEnterGlobalSearch: onEnterGlobalSearch,
-        onExitGlobalSearch: onExitGlobalSearch,
-        onOpenGlobalSearchResult: (conversationId, messageId) async {
-          await onOpenGlobalSearchResult(conversationId, messageId);
-          drawerController.close();
+        closePickerTicker: widget.assistantPickerCloseTick,
+        widget.loadingConversationIds: widget.loadingConversationIds,
+        widget.globalSearchMode: widget.globalSearchMode,
+        widget.globalSearchQuery: widget.globalSearchQuery,
+        widget.onGlobalSearchQueryChanged: widget.onGlobalSearchQueryChanged,
+        widget.onEnterGlobalSearch: widget.onEnterGlobalSearch,
+        widget.onExitGlobalSearch: widget.onExitGlobalSearch,
+        widget.onOpenGlobalSearchResult: (conversationId, messageId) async {
+          await widget.onOpenGlobalSearchResult(conversationId, messageId);
+          widget.drawerController.close();
         },
-        onSelectConversation: (id, {closeDrawer = true}) {
-          onSelectConversation(id);
-          if (closeDrawer) drawerController.close();
+        widget.onSelectConversation: (id, {closeDrawer = true}) {
+          widget.onSelectConversation(id);
+          if (closeDrawer) widget.drawerController.close();
         },
-        onNewConversation: ({closeDrawer = true}) async {
-          await onCreateNewConversation();
-          if (closeDrawer) drawerController.close();
+        widget.onNewConversation: ({closeDrawer = true}) async {
+          await widget.onCreateNewConversation();
+          if (closeDrawer) widget.drawerController.close();
         },
       ),
       child: ChatFrostedBackdrop(
         backdrop: const MobileBackgroundLayer(),
         child: Scaffold(
-          key: scaffoldKey,
+          key: widget.scaffoldKey,
           resizeToAvoidBottomInset: true,
           extendBodyBehindAppBar: true,
           backgroundColor: Colors.transparent,
-          appBar: appBarOverride ?? _buildAppBar(context, cs),
+          appBar: widget.appBarOverride ?? _buildAppBar(context, cs),
           // 底部导航栏：聊天 / 设置（UI 设置部分改到底部导航栏）
-          body: _tab == 0
-              ? body
+          widget.body: _tab == 0
+              ? widget.body
               : const SettingsPage(),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
@@ -204,14 +204,14 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
               colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
             ),
             onTap: () {
-              onDismissKeyboard();
-              onToggleDrawer();
+              widget.onDismissKeyboard();
+              widget.onToggleDrawer();
             },
           );
         },
       ),
       titleSpacing: 2,
-      title: useNewAssistantAvatarUx
+      widget.title: useNewAssistantAvatarUx
           ? Row(
               children: [
                 _buildAssistantTitleAvatar(context),
@@ -222,22 +222,22 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       AnimatedTextSwap(
-                        text: title,
+                        text: widget.title,
                         style: TextStyle(
                           fontSize: isDesktopPlatform ? 14 : 16,
                           fontWeight: AppFontWeights.medium,
                         ),
                       ),
-                      if (providerName != null && modelDisplay != null)
+                      if (widget.providerName != null && widget.modelDisplay != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 2),
                           child: InkWell(
                             borderRadius: BorderRadius.circular(6),
-                            onTap: onSelectModel,
+                            onTap: widget.onSelectModel,
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 0),
                               child: AnimatedTextSwap(
-                                text: '$modelDisplay ($providerName)',
+                                text: '$widget.modelDisplay ($widget.providerName)',
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: cs.onSurface.withValues(alpha: 0.6),
@@ -259,22 +259,22 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 AnimatedTextSwap(
-                  text: title,
+                  text: widget.title,
                   style: TextStyle(
                     fontSize: isDesktopPlatform ? 14 : 16,
                     fontWeight: AppFontWeights.medium,
                   ),
                 ),
-                if (providerName != null && modelDisplay != null)
+                if (widget.providerName != null && widget.modelDisplay != null)
                   Padding(
                     padding: const EdgeInsets.only(top: 2),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(6),
-                      onTap: onSelectModel,
+                      onTap: widget.onSelectModel,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 0),
                         child: AnimatedTextSwap(
-                          text: '$modelDisplay ($providerName)',
+                          text: '$widget.modelDisplay ($widget.providerName)',
                           style: TextStyle(
                             fontSize: 11,
                             color: cs.onSurface.withValues(alpha: 0.6),
@@ -292,7 +292,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
         IosIconButton(
           size: 20,
           minSize: 44,
-          onTap: onOpenMiniMap,
+          onTap: widget.onOpenMiniMap,
           semanticLabel: AppLocalizations.of(context)!.miniMapTooltip,
           icon: Lucide.Map,
         ),
@@ -300,20 +300,20 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           size: 22,
           minSize: 44,
           onTap: () async {
-            if (canToggleTemporaryConversation) {
-              await onToggleTemporaryConversation();
+            if (widget.canToggleTemporaryConversation) {
+              await widget.onToggleTemporaryConversation();
             } else {
-              await onCreateNewConversation();
+              await widget.onCreateNewConversation();
             }
           },
-          semanticLabel: canToggleTemporaryConversation
+          semanticLabel: widget.canToggleTemporaryConversation
               ? AppLocalizations.of(context)!.temporaryChatToggleTooltip
               : AppLocalizations.of(context)!.titleForLocale,
-          icon: canToggleTemporaryConversation && !temporaryConversationEnabled
+          icon: widget.canToggleTemporaryConversation && !widget.temporaryConversationEnabled
               ? Lucide.MessageCircleDashed
               : Lucide.MessageCirclePlus,
           builder:
-              canToggleTemporaryConversation && temporaryConversationEnabled
+              widget.canToggleTemporaryConversation && widget.temporaryConversationEnabled
               ? (color) => SvgPicture.asset(
                   'assets/icons/temporary_chat_checked.svg',
                   width: 22,
@@ -339,8 +339,8 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
       padding: const EdgeInsets.all(2),
       longPressTimeout: const Duration(milliseconds: 280),
       onTap: () {
-        onDismissKeyboard();
-        onToggleDrawer();
+        widget.onDismissKeyboard();
+        widget.onToggleDrawer();
       },
       onLongPress: currentAssistantId == null
           ? null
