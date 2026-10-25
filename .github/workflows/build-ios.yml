@@ -54,8 +54,9 @@ jobs:
 
       - name: 编译 Rust Core（aarch64-apple-ios）
         run: |
-          rustup toolchain install 1.84.1 --target aarch64-apple-ios --profile minimal
-          cargo build --release --target aarch64-apple-ios \
+          rustup toolchain install 1.84.1 --profile minimal
+          rustup target add aarch64-apple-ios --toolchain 1.84.1
+          cargo +1.84.1 build --release --target aarch64-apple-ios \
             --manifest-path native/kelivo_core/Cargo.toml
           mkdir -p ios/sandbox/build/iphoneos
           cp native/kelivo_core/target/aarch64-apple-ios/release/libkelivo_core.a \
