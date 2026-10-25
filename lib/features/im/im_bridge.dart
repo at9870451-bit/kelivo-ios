@@ -9,7 +9,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart' show MethodChannel;
 
 typedef _CallNative = Pointer<Utf8> Function(Pointer<Utf8>);
-typedef _FreeNative = void Function(Pointer<Utf8>);
+typedef _FreeNative = NativeFunction<Void Function(Pointer<Utf8>)>;
 
 class KelivoBridge {
   KelivoBridge._();
