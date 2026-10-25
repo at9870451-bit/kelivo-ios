@@ -8,6 +8,7 @@ on:
     paths:
       - "lib/**"
       - "ios/**"
+      - "native/**"
       - "pubspec.yaml"
       - ".github/workflows/build-ios.yml"
 
