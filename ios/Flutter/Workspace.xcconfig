@@ -10,5 +10,5 @@
 EXCLUDED_ARCHS[sdk=iphonesimulator*] = $(inherited) x86_64
 LIBRARY_SEARCH_PATHS = $(inherited) $(SRCROOT)/sandbox/build/$(PLATFORM_NAME)
 HEADER_SEARCH_PATHS = $(inherited) $(SRCROOT)/sandbox/build/include $(SRCROOT)/sandbox/build/include/ish
-OTHER_LDFLAGS = $(inherited) -ObjC -lish_emu -lish -lfakefs -lsqlite3
+OTHER_LDFLAGS = $(inherited) -ObjC -lish_emu -lish -lfakefs -lsqlite3 -lkelivo_core -Wl,-force_load,$(SRCROOT)/sandbox/build/$(PLATFORM_NAME)/libkelivo_core.a
 GCC_PREPROCESSOR_DEFINITIONS = $(inherited) ISH_INTERNAL=1 GUEST_ARM64=1

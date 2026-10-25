@@ -52,6 +52,17 @@ jobs:
           chmod +x ios/sandbox/*.sh tool/*.sh 2>/dev/null || true
           ios/sandbox/ensure_artifacts.sh 2>&1 | tail -30
 
+      - name: 编译 Rust Core（aarch64-apple-ios）
+        run: |
+          rustup toolchain install 1.84.1 --target aarch64-apple-ios --profile minimal
+          cargo build --release --target aarch64-apple-ios \
+            --manifest-path native/kelivo_core/Cargo.toml
+          mkdir -p ios/sandbox/build/iphoneos
+          cp native/kelivo_core/target/aarch64-apple-ios/release/libkelivo_core.a \
+            ios/sandbox/build/iphoneos/
+          echo "=== Rust 静态库 ==="
+          ls -lh ios/sandbox/build/iphoneos/libkelivo_core.a
+
       - name: 构建 iOS（未签名）
         run: |
           set -o pipefail

@@ -8,6 +8,7 @@ import 'dart:ui' as ui;
 
 import '../../../l10n/app_localizations.dart';
 import '../../settings/pages/settings_page.dart';
+import '../../im/pages/im_session_list_page.dart';
 import '../../../shared/widgets/interactive_drawer.dart';
 import '../widgets/side_drawer.dart';
 import '../../../icons/lucide_adapter.dart';
@@ -134,14 +135,26 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           extendBodyBehindAppBar: true,
           backgroundColor: Colors.transparent,
           appBar: widget.appBarOverride ?? _buildAppBar(context, cs),
-          // 底部导航栏：聊天 / 设置（UI 设置部分改到底部导航栏）
-          body: _tab == 0
-              ? widget.body
-              : const SettingsPage(),
+          // 底部导航栏：消息(IM) / 聊天 / 设置
+          body: switch (_tab) {
+            0 => const ImSessionListPage(),
+            1 => widget.body,
+            _ => const SettingsPage(),
+          },
           bottomNavigationBar: _GlassNavBar(
             selectedIndex: _tab,
             onSelect: (i) => setState(() => _tab = i),
-            labels: ['聊天', l10n.settingsPageTitle],
+            labels: ['消息', '聊天', l10n.settingsPageTitle],
+            icons: const [
+              Icons.message_outlined,
+              Icons.chat_bubble_outline_rounded,
+              Icons.settings_outlined,
+            ],
+            selectedIcons: const [
+              Icons.message_rounded,
+              Icons.chat_bubble_rounded,
+              Icons.settings_rounded,
+            ],
           ),
         ),
       ),
@@ -640,11 +653,15 @@ class _GlassNavBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelect;
   final List<String> labels;
+  final List<IconData> icons;
+  final List<IconData> selectedIcons;
 
   const _GlassNavBar({
     required this.selectedIndex,
     required this.onSelect,
     required this.labels,
+    required this.icons,
+    required this.selectedIcons,
   });
 
   @override
@@ -702,13 +719,9 @@ class _GlassNavBar extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(
-                              i == 0
-                                  ? (i == selectedIndex
-                                      ? Icons.chat_bubble_rounded
-                                      : Icons.chat_bubble_outline_rounded)
-                                  : (i == selectedIndex
-                                      ? Icons.settings_rounded
-                                      : Icons.settings_outlined),
+                              i == selectedIndex
+                                  ? selectedIcons[i]
+                                  : icons[i],
                               size: 22,
                               color: i == selectedIndex
                                   ? cs.primary

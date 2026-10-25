@@ -1,0 +1,4 @@
+Error loading shared library libscudo.so: Out of memory (needed by /usr/bin/rustc)
+Error loading shared library librustc_driver-bda8c6ef3b6b0ebf.so: Out of memory (needed by /usr/bin/rustc)
+Error relocating /usr/bin/rustc: _ZN3std2rt19lang_start_internal17h332784dbba44cfc1E: symbol not found
+Error relocating /usr/bin/rustc: _RNvCs8vuMitOE3Lk_17rustc_driver_impl4main: symbol not found
