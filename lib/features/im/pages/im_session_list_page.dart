@@ -73,7 +73,10 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
     final noteCtl = TextEditingController();
     final personaCtl = TextEditingController();
     final voiceCtl = TextEditingController();
+    final memoryCtl = TextEditingController();
+    final modelCtl = TextEditingController();
     var gender = 'female';
+    var localTools = true;
     var emoji = '😊';
     var color = const Color(0xFF5FA8D3);
     var voice = '默认';
@@ -196,6 +199,27 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                       hintText: '例如：温柔细心，喜欢咖啡和猫'),
                 ),
                 const SizedBox(height: 8),
+                TextField(
+                  controller: memoryCtl,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                      labelText: '记忆（每行一条）',
+                      hintText: '例如：\n喜欢去海边散步\n生日是 6 月 18 日'),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: modelCtl,
+                  decoration: const InputDecoration(
+                      labelText: '专属模型（空=跟随全局）',
+                      hintText: '例如：gpt-4o-mini'),
+                ),
+                SwitchListTile(
+                  value: localTools,
+                  title: const Text('本地工具（代码/计算/数据）'),
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (v) => setDlg(() => localTools = v),
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
@@ -240,7 +264,14 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                     voiceEngine: voice == '默认' ? '' : voice,
                     voiceId: voiceCtl.text.trim(),
                     avatar: emoji,
-                    avatarColor: color.toARGB32()));
+                    avatarColor: color.toARGB32(),
+                    memory: memoryCtl.text
+                        .split('\n')
+                        .map((e) => e.trim())
+                        .where((e) => e.isNotEmpty)
+                        .toList(),
+                    model: modelCtl.text.trim(),
+                    localTools: localTools));
                 // 自动建立会话（Rust append 自动维护会话列表）
                 KelivoStore.append(id, 'assistant', '你好，我是$name，很高兴认识你！');
                 Navigator.pop(ctx);

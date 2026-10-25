@@ -152,6 +152,9 @@ class ImFriend {
   final String voiceId;
   final String avatar;
   final int avatarColor;
+  final List<String> memory; // 长期记忆
+  final String model; // 专属模型（空=全局）
+  final bool localTools; // 本地工具开关
 
   const ImFriend({
     required this.id,
@@ -164,7 +167,10 @@ class ImFriend {
     this.voiceId = '',
     this.avatar = '',
     this.avatarColor = 0xFF5FA8D3,
-  });
+    List<String>? memory,
+    this.model = '',
+    this.localTools = true,
+  }) : memory = memory ?? const [];
 
   factory ImFriend.fromJson(Map<String, dynamic> j) => ImFriend(
         id: j['id']?.toString() ?? '',
@@ -177,6 +183,10 @@ class ImFriend {
         voiceId: j['voiceId']?.toString() ?? '',
         avatar: j['avatar']?.toString() ?? '',
         avatarColor: (j['avatarColor'] as num?)?.toInt() ?? 0xFF5FA8D3,
+        memory: (j['memory'] as List?)?.map((e) => e.toString()).toList() ??
+            const [],
+        model: j['model']?.toString() ?? '',
+        localTools: j['localTools'] as bool? ?? true,
       );
 
   Map<String, dynamic> toJson() => {
@@ -192,6 +202,9 @@ class ImFriend {
             ? String.fromCharCode(name.runes.first)
             : avatar,
         'avatarColor': avatarColor,
+        'memory': memory,
+        'model': model,
+        'localTools': localTools,
       };
 }
 
