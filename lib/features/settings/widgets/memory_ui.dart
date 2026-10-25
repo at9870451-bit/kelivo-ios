@@ -405,7 +405,7 @@ class _MemoryFadingHorizontalScrollState
           ShaderMask(
             blendMode: BlendMode.dstIn,
             shaderCallback: (bounds) {
-              return ui.Gradient.linear(Offset.zero, Offset.zero, [1.0, 1.0]).createShader(bounds);
+              return ui.Gradient.linear(Offset.zero, Offset.zero, [Colors.white, Colors.white]);
             },
             child: SingleChildScrollView(
               controller: _controller,

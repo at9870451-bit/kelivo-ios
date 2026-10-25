@@ -188,7 +188,7 @@ class _TopBackgroundFade extends StatelessWidget {
     return ShaderMask(
       blendMode: BlendMode.dstIn,
       shaderCallback: (bounds) {
-        return ui.Gradient.linear(Offset.zero, Offset.zero, [const Color(0xFF000000), const Color(0xFF000000)]).createShader(Rect.fromLTWH(0, 0, bounds.width, height));
+        return ui.Gradient.linear(Offset.zero, Offset.zero, [const Color(0xFF000000), const Color(0xFF000000)]);
       },
       child: child,
     );
@@ -209,9 +209,7 @@ class _BottomBackgroundFade extends StatelessWidget {
     return ShaderMask(
       blendMode: BlendMode.dstIn,
       shaderCallback: (bounds) {
-        return ui.Gradient.linear(Offset.zero, Offset.zero, [const Color(0xFF000000), const Color(0xFF000000)]).createShader(
-          Rect.fromLTWH(0, bounds.height - height, bounds.width, height),
-        );
+        return ui.Gradient.linear(Offset.zero, Offset.zero, [const Color(0xFF000000), const Color(0xFF000000)]);
       },
       child: child,
     );
@@ -243,7 +241,7 @@ class _BottomOverlayFade extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final surface = theme.colorScheme.surface;
-    final gradient = ;
+    final gradient = theme.colorScheme.surface;
 
     return IgnorePointer(
       key: const Key('chat-input-overlay-bottom-fade'),
