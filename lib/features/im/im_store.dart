@@ -139,3 +139,99 @@ class KelivoStore {
   static String crc32(String data) =>
       KelivoBridge.call('crypto.crc32', {'data': data})['crc32'] as String;
 }
+
+/// 好友（微信风格联系人）
+class ImFriend {
+  final String id;
+  final String name;
+  final String gender;
+  final String note;
+  final String avatar;
+
+  const ImFriend({
+    required this.id,
+    required this.name,
+    this.gender = '',
+    this.note = '',
+    this.avatar = '',
+  });
+
+  factory ImFriend.fromJson(Map<String, dynamic> j) => ImFriend(
+        id: j['id']?.toString() ?? '',
+        name: j['name']?.toString() ?? '',
+        gender: j['gender']?.toString() ?? '',
+        note: j['note']?.toString() ?? '',
+        avatar: j['avatar']?.toString() ?? '',
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'gender': gender,
+        'note': note,
+        'avatar': avatar.isEmpty && name.isNotEmpty ? name.characters.first : avatar,
+      };
+}
+
+/// 群组
+class ImGroup {
+  final String id;
+  final String name;
+  final List<String> memberIds;
+
+  const ImGroup({required this.id, required this.name, this.memberIds = const []});
+
+  factory ImGroup.fromJson(Map<String, dynamic> j) => ImGroup(
+        id: j['id']?.toString() ?? '',
+        name: j['name']?.toString() ?? '',
+        memberIds: (j['memberIds'] as List?)
+                ?.map((e) => e.toString())
+                .toList() ??
+            const [],
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'memberIds': memberIds,
+      };
+}
+
+// ---- 联系人 API（Rust 存储）----
+extension KelivoContacts on KelivoStore {
+  static List<ImFriend> friends() {
+    final r = KelivoBridge.call('contacts.friends', {});
+    return (r['friends'] as List? ?? const [])
+        .whereType<Map>()
+        .map((e) => ImFriend.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  static int saveFriend(ImFriend f) {
+    final r = KelivoBridge.call('contacts.save_friend', {'friend': f.toJson()});
+    return (r['count'] as num?)?.toInt() ?? 0;
+  }
+
+  static int deleteFriend(String id) {
+    final r = KelivoBridge.call('contacts.delete_friend', {'id': id});
+    return (r['count'] as num?)?.toInt() ?? 0;
+  }
+
+  static List<ImGroup> groups() {
+    final r = KelivoBridge.call('contacts.groups', {});
+    return (r['groups'] as List? ?? const [])
+        .whereType<Map>()
+        .map((e) => ImGroup.fromJson(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  static int saveGroup(ImGroup g) {
+    final r = KelivoBridge.call('contacts.save_group', {'group': g.toJson()});
+    return (r['count'] as num?)?.toInt() ?? 0;
+  }
+
+  static int deleteGroup(String id) {
+    final r = KelivoBridge.call('contacts.delete_group', {'id': id});
+    return (r['count'] as num?)?.toInt() ?? 0;
+  }
+}

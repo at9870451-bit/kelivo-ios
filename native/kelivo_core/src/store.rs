@@ -25,6 +25,66 @@ fn sessions_file() -> PathBuf {
     im_dir().join("sessions.json")
 }
 
+fn friends_file() -> PathBuf {
+    im_dir().join("friends.json")
+}
+
+fn groups_file() -> PathBuf {
+    im_dir().join("groups.json")
+}
+
+/// 好友列表（微信风格联系人）
+pub fn friends() -> Vec<Value> {
+    read_json(&friends_file()).as_array().cloned().unwrap_or_default()
+}
+
+fn save_friends(list: &[Value]) {
+    write_json(&friends_file(), &json!(list));
+}
+
+/// 群组列表
+pub fn groups() -> Vec<Value> {
+    read_json(&groups_file()).as_array().cloned().unwrap_or_default()
+}
+
+fn save_groups(list: &[Value]) {
+    write_json(&groups_file(), &json!(list));
+}
+
+pub fn save_friend(v: &Value) -> usize {
+    let id = v.get("id").and_then(|x| x.as_str()).unwrap_or("").to_string();
+    let mut list = friends();
+    list.retain(|f| f.get("id").and_then(|x| x.as_str()).unwrap_or("") != id);
+    list.push(v.clone());
+    save_friends(&list);
+    list.len()
+}
+
+pub fn delete_friend(id: &str) -> usize {
+    let mut list = friends();
+    let before = list.len();
+    list.retain(|f| f.get("id").and_then(|x| x.as_str()).unwrap_or("") != id);
+    save_friends(&list);
+    before - list.len()
+}
+
+pub fn save_group(v: &Value) -> usize {
+    let id = v.get("id").and_then(|x| x.as_str()).unwrap_or("").to_string();
+    let mut list = groups();
+    list.retain(|g| g.get("id").and_then(|x| x.as_str()).unwrap_or("") != id);
+    list.push(v.clone());
+    save_groups(&list);
+    list.len()
+}
+
+pub fn delete_group(id: &str) -> usize {
+    let mut list = groups();
+    let before = list.len();
+    list.retain(|g| g.get("id").and_then(|x| x.as_str()).unwrap_or("") != id);
+    save_groups(&list);
+    before - list.len()
+}
+
 fn history_file(key: &str) -> PathBuf {
     im_dir().join(format!("{key}.json"))
 }
@@ -183,5 +243,17 @@ pub fn seed_demo() -> usize {
     }
 
     save_sessions(&sessions);
+
+    // 好友实体（微信风格联系人：头像字符/性别/简介）
+    save_friends(&vec![
+        json!({"id": "im_xiaoman", "name": "林小满", "gender": "female", "note": "产品经理 · 喜欢咖啡和猫", "avatar": "林"}),
+        json!({"id": "im_yinuo", "name": "陈一诺", "gender": "female", "note": "设计师 · 追星女孩", "avatar": "陈"}),
+        json!({"id": "im_lizhe", "name": "李哲", "gender": "male", "note": "后端工程师 · 夜猫子", "avatar": "李"}),
+    ]);
+    // 群组实体
+    save_groups(&vec![
+        json!({"id": "im_hike", "name": "周末爬山小分队", "memberIds": ["im_xiaoman", "im_yinuo", "im_lizhe"]}),
+    ]);
+
     sessions.len()
 }

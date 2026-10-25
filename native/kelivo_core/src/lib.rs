@@ -41,6 +41,25 @@ fn dispatch(method: &str, p: &serde_json::Value) -> Option<serde_json::Value> {
             store::init(dir);
             Some(serde_json::json!({ "dir": dir }))
         }
+        // ---- 联系人（微信风格好友/群组）----
+        "contacts.friends" => Some(serde_json::json!({ "friends": store::friends() })),
+        "contacts.save_friend" => {
+            let v = p.get("friend").cloned().unwrap_or(serde_json::Value::Null);
+            Some(serde_json::json!({ "count": store::save_friend(&v) }))
+        }
+        "contacts.delete_friend" => {
+            let id = p.get("id").and_then(|v| v.as_str()).unwrap_or("");
+            Some(serde_json::json!({ "count": store::delete_friend(id) }))
+        }
+        "contacts.groups" => Some(serde_json::json!({ "groups": store::groups() })),
+        "contacts.save_group" => {
+            let v = p.get("group").cloned().unwrap_or(serde_json::Value::Null);
+            Some(serde_json::json!({ "count": store::save_group(&v) }))
+        }
+        "contacts.delete_group" => {
+            let id = p.get("id").and_then(|v| v.as_str()).unwrap_or("");
+            Some(serde_json::json!({ "count": store::delete_group(id) }))
+        }
         // ---- 消息存储（iMessage 会话）----
         "store.sessions" => Some(serde_json::json!({ "sessions": store::sessions() })),
         "store.messages" => {
