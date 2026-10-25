@@ -1,0 +1,83 @@
+# Kelivo iOS 构建（Amore 同款模式：push 自动构建 → ipa → Release）
+name: Kelivo iOS Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["master"]
+    paths:
+      - "lib/**"
+      - "ios/**"
+      - "pubspec.yaml"
+      - ".github/workflows/build-ios.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Kelivo iOS → ipa
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Flutter（master 通道）
+        uses: subosito/flutter-action@v2
+        with:
+          channel: master
+          cache: true
+
+      - name: 版本信息
+        run: |
+          flutter --version
+          dart --version
+
+      - name: 注入 fallback 占位
+        run: |
+          mkdir -p lib/secrets
+          if [ ! -f lib/secrets/fallback.dart ]; then
+            cat > lib/secrets/fallback.dart <<'EOF'
+          const String siliconflowFallbackKey = 'sk-xxxx';
+          EOF
+          fi
+
+      - name: 构建 iOS（未签名）
+        run: |
+          set -o pipefail
+          flutter build ios --release --no-codesign 2>&1 | tee build.log | tail -60
+
+      - name: 打包 ipa
+        run: |
+          APP=build/ios/iphoneos/Runner.app
+          test -d "$APP" || { echo "::error::Runner.app 不存在"; exit 1; }
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          rm -rf Payload Kelivo.ipa
+          mkdir Payload
+          cp -R "$APP" Payload/
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName Kelivo" Payload/Runner.app/Info.plist 2>/dev/null \
+            || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string Kelivo" Payload/Runner.app/Info.plist
+          zip -qry Kelivo.ipa Payload
+          echo "=== 产物 ==="
+          ls -lh Kelivo.ipa
+          echo "SHA256: $(shasum -a 256 Kelivo.ipa | awk '{print $1}')"
+          echo "最低系统: $(/usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' Payload/Runner.app/Info.plist)"
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: kelivo-ios-ipa
+          path: Kelivo.ipa
+          retention-days: 30
+
+      - name: 发 Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kelivo-build-${{ github.run_number }}
+          name: "Kelivo iOS 构建 #${{ github.run_number }}"
+          body: |
+            Kelivo iOS（修改版：移动端底部导航栏设置页）。
+            提交：`${{ github.sha }}`
+          files: Kelivo.ipa
+          draft: false
