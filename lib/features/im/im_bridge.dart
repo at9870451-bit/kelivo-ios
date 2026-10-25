@@ -10,8 +10,10 @@ import 'package:flutter/services.dart' show MethodChannel;
 
 /// 新版 Flutter SDK：lookupFunction<T extends Function, R extends Function>
 /// 直接传函数签名（内部自动包装 NativeFunction）。
-typedef _CallFn = Pointer<Utf8> Function(Pointer<Utf8>);
-typedef _FreeFn = Void Function(Pointer<Utf8>);
+typedef _CallNative = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef _CallDart = Pointer<Utf8> Function(Pointer<Utf8>);
+typedef _FreeNative = Void Function(Pointer<Utf8>);
+typedef _FreeDart = void Function(Pointer<Utf8>);
 
 class KelivoBridge {
   KelivoBridge._();
@@ -26,8 +28,8 @@ class KelivoBridge {
     return DynamicLibrary.open('libkelivo_core.so');
   }
 
-  static final _call = _lib.lookupFunction<_CallFn, _CallFn>('kelivo_call');
-  static final _free = _lib.lookupFunction<_FreeFn, _FreeFn>('kelivo_free');
+  static final _call = _lib.lookupFunction<_CallNative, _CallDart>('kelivo_call');
+  static final _free = _lib.lookupFunction<_FreeNative, _FreeDart>('kelivo_free');
 
   /// 同步调用 Rust：{"method","params"} → {"ok","data"} 信封
   static Map<String, dynamic> call(String method, Map<String, dynamic> params) {
