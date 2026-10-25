@@ -136,7 +136,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           appBar: widget.appBarOverride ?? _buildAppBar(context, cs),
           // 底部导航栏：聊天 / 设置（UI 设置部分改到底部导航栏）
           body: _tab == 0
-              ? body
+              ? widget.body
               : const SettingsPage(),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
