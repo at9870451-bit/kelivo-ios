@@ -62,11 +62,7 @@ class _SettingsSearchListState extends State<SettingsSearchList> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _controller ??= ScrollController(
-      initialScrollOffset: MediaQuery.accessibleNavigationOf(context)
-          ? 0
-          : _searchExtent,
-    );
+    _controller ??= ScrollController();
   }
 
   Rect? _entryRect() {
@@ -123,18 +119,16 @@ class _SettingsSearchListState extends State<SettingsSearchList> {
     bottom: false,
     child: CustomScrollView(
       controller: _controller,
-      physics: _SearchRevealPhysics(
-        extent: _searchExtent,
-        parent: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
+      physics: const BouncingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
       ),
       slivers: [
-        SliverPersistentHeader(
-          delegate: _SearchHeader(
-            extent: _searchExtent,
-            entryKey: _entryKey,
-            onTap: _openSearch,
+        // 搜索入口不再置顶：随内容滚动（普通 sliver）
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: SettingsSearchEntry(
+                key: _entryKey, reveal: 1.0, onTap: _openSearch),
           ),
         ),
         SliverPadding(

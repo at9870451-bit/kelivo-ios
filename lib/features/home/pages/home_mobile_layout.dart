@@ -144,7 +144,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           bottomNavigationBar: _GlassNavBar(
             selectedIndex: _tab,
             onSelect: (i) => setState(() => _tab = i),
-            labels: ['消息', '聊天', l10n.settingsPageTitle],
+            labels: ['消息', '会话', l10n.settingsPageTitle],
             icons: const [
               Icons.message_outlined,
               Icons.chat_bubble_outline_rounded,
