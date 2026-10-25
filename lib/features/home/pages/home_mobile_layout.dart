@@ -138,21 +138,10 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           body: _tab == 0
               ? widget.body
               : const SettingsPage(),
-          bottomNavigationBar: NavigationBar(
+          bottomNavigationBar: _GlassNavBar(
             selectedIndex: _tab,
-            onDestinationSelected: (i) => setState(() => _tab = i),
-            destinations: [
-              NavigationDestination(
-                icon: const Icon(Icons.chat_bubble_outline_rounded),
-                selectedIcon: const Icon(Icons.chat_bubble_rounded),
-                label: '聊天',
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings_rounded),
-                label: l10n.settingsPageTitle,
-              ),
-            ],
+            onSelect: (i) => setState(() => _tab = i),
+            labels: ['聊天', l10n.settingsPageTitle],
           ),
         ),
       ),
@@ -636,6 +625,114 @@ class _GlassCircleButtonState extends State<_GlassCircleButton> {
                   child: Icon(widget.icon, size: 18, color: widget.color),
                 ),
               ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+/// 🪟 Liquid Glass 底部导航栏：悬浮毛玻璃——26px 背景模糊 + 半透明白 78% +
+/// 白色细边框 + 圆角 26 + 上投轻阴影 + 胶囊形选中态（系统蓝 12% 底）+ SafeArea
+class _GlassNavBar extends StatelessWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onSelect;
+  final List<String> labels;
+
+  const _GlassNavBar({
+    required this.selectedIndex,
+    required this.onSelect,
+    required this.labels,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(14, 0, 14, 10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(26),
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 26, sigmaY: 26),
+          child: Container(
+            height: 58,
+            decoration: BoxDecoration(
+              color: isDark
+                  ? const Color(0xFF101725).withValues(alpha: 0.86)
+                  : Colors.white.withValues(alpha: 0.78),
+              // 细腻白色边框
+              border: Border.all(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.10)
+                    : Colors.white.withValues(alpha: 0.75),
+              ),
+              // 上投轻阴影（悬浮感）
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.05),
+                  blurRadius: 18,
+                  offset: const Offset(0, -3),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                for (var i = 0; i < labels.length; i++)
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => onSelect(i),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 240),
+                        curve: Curves.easeOutCubic,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 6),
+                        decoration: BoxDecoration(
+                          // 胶囊形选中态：系统蓝 12% 底
+                          color: i == selectedIndex
+                              ? cs.primary.withValues(alpha: 0.12)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              i == 0
+                                  ? (i == selectedIndex
+                                      ? Icons.chat_bubble_rounded
+                                      : Icons.chat_bubble_outline_rounded)
+                                  : (i == selectedIndex
+                                      ? Icons.settings_rounded
+                                      : Icons.settings_outlined),
+                              size: 22,
+                              color: i == selectedIndex
+                                  ? cs.primary
+                                  : cs.onSurfaceVariant,
+                            ),
+                            const SizedBox(height: 1),
+                            Text(
+                              labels[i],
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                fontWeight: i == selectedIndex
+                                    ? FontWeight.w600
+                                    : FontWeight.w500,
+                                color: i == selectedIndex
+                                    ? cs.primary
+                                    : cs.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
