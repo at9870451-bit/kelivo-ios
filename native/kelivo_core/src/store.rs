@@ -11,8 +11,33 @@ pub fn init(dir: &str) {
     let _ = DATA_DIR.set(dir.to_string());
     let im = im_dir();
     let _ = fs::create_dir_all(&im);
-    if sessions().is_empty() {
-        seed_demo();
+    // 不预置演示数据；清除历史版本遗留的演示会话/好友/群组
+    clean_demo();
+}
+
+/// 清除演示数据（im_xiaoman/im_yinuo/im_lizhe/im_hike），保留用户自己添加的
+fn clean_demo() {
+    const DEMO: [&str; 4] = ["im_xiaoman", "im_yinuo", "im_lizhe", "im_hike"];
+    let mut list = sessions();
+    list.retain(|s| {
+        let id = s.get("id").and_then(|v| v.as_str()).unwrap_or("");
+        !DEMO.contains(&id)
+    });
+    save_sessions(&list);
+    let mut fl = friends();
+    fl.retain(|f| {
+        let id = f.get("id").and_then(|v| v.as_str()).unwrap_or("");
+        !DEMO.contains(&id)
+    });
+    save_friends(&fl);
+    let mut gl = groups();
+    gl.retain(|g| {
+        let id = g.get("id").and_then(|v| v.as_str()).unwrap_or("");
+        !DEMO.contains(&id)
+    });
+    save_groups(&gl);
+    for id in DEMO {
+        let _ = fs::remove_file(history_file(id));
     }
 }
 

@@ -21,7 +21,6 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
   List<ImSession> _sessions = [];
   List<ImFriend> _friends = [];
   List<ImGroup> _groups = [];
-  bool _seeded = false;
 
   @override
   void initState() {
@@ -41,11 +40,6 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
 
   void _load() {
     _sessions = KelivoStore.sessions();
-    if (_sessions.isEmpty && !_seeded) {
-      _seeded = true;
-      final n = KelivoStore.seedDemo();
-      if (n > 0) _sessions = KelivoStore.sessions();
-    }
     _friends = KelivoContacts.friends();
     _groups = KelivoContacts.groups();
     if (mounted) setState(() {});
