@@ -1,5 +1,8 @@
 // 会话列表页（Amore/微信风格：好友+群组联系人管理 + 会话列表）
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:Kelivo/theme/app_font_weights.dart';
