@@ -371,7 +371,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
           isGroup
               ? '群'
               : (s.avatar.isEmpty ? s.name.characters.first : s.avatar),
-          style: const TextStyle(
+          style: TextStyle(
               color: Colors.white,
               fontSize: isGroup ? 14 : 18,
               fontWeight: FontWeight.w600)),
