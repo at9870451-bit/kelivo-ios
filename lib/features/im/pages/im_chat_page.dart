@@ -1,9 +1,13 @@
 // 聊天页（iMessage 风格：蓝/灰气泡、时间戳、已读状态、输入框、附件菜单）
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
+import 'package:Kelivo/core/providers/settings_provider.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
 
 import '../im_store.dart';
@@ -64,10 +68,10 @@ class _ImChatPageState extends State<ImChatPage> {
       final tag = '[图片] ${a.content}';
       KelivoStore.append(widget.session.id, 'user', tag);
     }
-    // 模拟对方回复（真实走 Rust 存储；AI 会话可替换为模型回复）
-    await Future.delayed(const Duration(milliseconds: 900));
+    // AI 好友：调用模型生成回复；无模型/失败则模拟回复
+    final reply = await _generateReply(text);
     if (mounted) {
-      KelivoStore.append(widget.session.id, 'assistant', '（已读）收到～');
+      KelivoStore.append(widget.session.id, 'assistant', reply);
       final all = KelivoStore.messages(widget.session.id);
       for (final m in all.reversed) {
         if (m.mine) {
@@ -79,6 +83,96 @@ class _ImChatPageState extends State<ImChatPage> {
       setState(() => _sending = false);
       _reload();
     }
+  }
+
+  /// 查找当前会话对应的好友（用于读取专属模型/人设）
+  ImFriend? _findFriend() {
+    for (final f in KelivoContacts.friends()) {
+      if (f.id == widget.session.id) return f;
+    }
+    return null;
+  }
+
+  /// AI 回复：好友有专属模型（或全局模型）时调用；否则模拟回复
+  Future<String> _generateReply(String text) async {
+    if (text.isEmpty) return '（已读）收到～';
+    final friend = _findFriend();
+    if (friend == null) return '（已读）收到～';
+
+    String? model = friend.model.isNotEmpty ? friend.model : null;
+    String? baseUrl;
+    String? apiKey;
+    try {
+      final settings = context.read<SettingsProvider>();
+      final providerKey = settings.currentModelProvider;
+      if (providerKey != null && providerKey.isNotEmpty) {
+        final cfg = settings.getProviderConfig(providerKey);
+        baseUrl = cfg.baseUrl.trim();
+        apiKey = cfg.apiKey.trim();
+      }
+      model ??= settings.currentModelId;
+    } catch (_) {}
+
+    if (baseUrl == null || baseUrl.isEmpty || apiKey == null || apiKey.isEmpty) {
+      return '（已读）收到～';
+    }
+    if (model == null || model.isEmpty) {
+      return '（已读）收到～';
+    }
+
+    // 组装最近历史（≤10 条）
+    final history = KelivoStore.messages(widget.session.id);
+    final recent = history.length > 10
+        ? history.sublist(history.length - 10)
+        : history;
+    final msgs = [
+      for (final m in recent)
+        {
+          'role': m.mine ? 'user' : 'assistant',
+          'content': m.content,
+        },
+    ];
+
+    // 人设注入
+    String system = '';
+    if (friend.persona.isNotEmpty) {
+      system = friend.persona;
+    }
+
+    try {
+      var url = baseUrl.endsWith('/') ? baseUrl : '$baseUrl/';
+      if (!url.endsWith('/chat/completions')) {
+        url = '${url}chat/completions';
+      }
+      final resp = await http
+          .post(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $apiKey',
+            },
+            body: jsonEncode({
+              'model': model,
+              if (system.isNotEmpty) 'system': system,
+              'messages': msgs,
+              'stream': false,
+            }),
+          )
+          .timeout(const Duration(seconds: 60));
+      if (resp.statusCode == 200) {
+        final data = jsonDecode(utf8.decode(resp.bodyBytes));
+        final choices = data['choices'] as List?;
+        if (choices != null && choices.isNotEmpty) {
+          final content = choices.first['message']?['content'];
+          if (content != null && content.toString().trim().isNotEmpty) {
+            return content.toString().trim();
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('AI 回复失败: $e');
+    }
+    return '（已读）收到～';
   }
 
   Future<void> _attachMenu() async {

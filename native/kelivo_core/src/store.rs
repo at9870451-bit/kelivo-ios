@@ -90,7 +90,17 @@ pub fn delete_friend(id: &str) -> usize {
     let before = list.len();
     list.retain(|f| f.get("id").and_then(|x| x.as_str()).unwrap_or("") != id);
     save_friends(&list);
+    // 同时删除对应会话与历史（彻底删除好友）
+    remove_session(id);
+    let _ = fs::remove_file(history_file(id));
     before - list.len()
+}
+
+/// 从会话列表移除某项（不删历史，由调用方决定）
+fn remove_session(key: &str) {
+    let mut list = sessions();
+    list.retain(|s| s.get("id").and_then(|v| v.as_str()).unwrap_or("") != key);
+    save_sessions(&list);
 }
 
 pub fn save_group(v: &Value) -> usize {
@@ -107,6 +117,8 @@ pub fn delete_group(id: &str) -> usize {
     let before = list.len();
     list.retain(|g| g.get("id").and_then(|x| x.as_str()).unwrap_or("") != id);
     save_groups(&list);
+    remove_session(id);
+    let _ = fs::remove_file(history_file(id));
     before - list.len()
 }
 
@@ -186,11 +198,13 @@ fn upsert_session(key: &str, role: &str, content: &str, msg_count: usize, ts: f6
         for f in friends() {
             if f.get("id").and_then(|v| v.as_str()).unwrap_or("") == key {
                 name = f.get("name").and_then(|v| v.as_str()).unwrap_or(key).to_string();
-                avatar = f
-                    .get("avatar")
-                    .and_then(|v| v.as_str())
-                    .unwrap_or("")
-                    .to_string();
+                // 优先用本地照片路径（avatarPath），否则用 emoji/文字头像
+                let path = f.get("avatarPath").and_then(|v| v.as_str()).unwrap_or("");
+                avatar = if path.is_empty() {
+                    f.get("avatar").and_then(|v| v.as_str()).unwrap_or("").to_string()
+                } else {
+                    path.to_string()
+                };
                 break;
             }
         }

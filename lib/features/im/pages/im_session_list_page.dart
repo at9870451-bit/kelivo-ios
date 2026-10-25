@@ -55,127 +55,84 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
     return '${d.month}/${d.day}';
   }
 
-  // ---- 添加好友（头像/性别/年龄/人设/语音模型） ----
-  static const _avatarEmojis = ['😀','😊','😎','🥰','🤗','😇','🐱','🐶','🌸','🌙','⭐','🎀'];
-  static const _avatarColors = [
-    Color(0xFF5FA8D3), Color(0xFFF2A65A), Color(0xFF8E8ED8),
-    Color(0xFF6E8B5E), Color(0xFFD87373), Color(0xFF4FA8A8),
-    Color(0xFFB886C8), Color(0xFF7A8B99),
-  ];
+  // ---- 添加好友（本地照片头像/性别/年龄/人设/语音模型） ----
   static const _voiceModels = ['默认', '本地朗读', '模型音色', '硅基流动', '豆包'];
 
-  void _addFriendSheet() {
-    final nameCtl = TextEditingController();
-    final ageCtl = TextEditingController();
-    final noteCtl = TextEditingController();
-    final personaCtl = TextEditingController();
-    final voiceCtl = TextEditingController();
-    final memoryCtl = TextEditingController();
-    final modelCtl = TextEditingController();
-    var gender = 'female';
-    var localTools = true;
-    var emoji = '😊';
-    var color = const Color(0xFF5FA8D3);
-    var avatarPath = '';
-    var voice = '默认';
+  /// 添加 / 编辑好友（existing 非空 = 编辑模式）
+  void _friendSheet({ImFriend? existing}) {
+    final nameCtl = TextEditingController(text: existing?.name ?? '');
+    final ageCtl = TextEditingController(text: existing?.age ?? '');
+    final noteCtl = TextEditingController(text: existing?.note ?? '');
+    final personaCtl = TextEditingController(text: existing?.persona ?? '');
+    final voiceCtl = TextEditingController(text: existing?.voiceId ?? '');
+    final memoryCtl = TextEditingController(
+        text: (existing?.memory ?? const []).join('\n'));
+    final modelCtl = TextEditingController(text: existing?.model ?? '');
+    var gender = existing?.gender.isNotEmpty == true ? existing!.gender : 'female';
+    var localTools = existing?.localTools ?? true;
+    var avatarPath = existing?.avatarPath ?? '';
+    var voice = (existing?.voiceEngine?.isNotEmpty == true)
+        ? existing!.voiceEngine!
+        : '默认';
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDlg) => AlertDialog(
-          title: const Text('添加好友'),
+          title: Text(existing == null ? '添加好友' : '编辑好友'),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 头像选择：本地照片 或 emoji + 底色
+                // 头像：本地照片（无照片时用昵称首字符）
                 Row(
                   children: [
                     CircleAvatar(
-                      radius: 26,
-                      backgroundColor: color,
+                      radius: 28,
+                      backgroundColor: const Color(0xFF5FA8D3),
                       backgroundImage: avatarPath.isNotEmpty
                           ? FileImage(File(avatarPath))
                           : null,
                       child: avatarPath.isEmpty
-                          ? Text(emoji, style: const TextStyle(fontSize: 26))
+                          ? Text(
+                              nameCtl.text.isEmpty
+                                  ? '友'
+                                  : nameCtl.text.characters.first,
+                              style: const TextStyle(
+                                  fontSize: 22,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600))
                           : null,
                     ),
-                    const SizedBox(width: 12),
-                    IconButton(
-                      onPressed: () async {
-                        try {
-                          final picked = await ImagePicker().pickImage(
-                              source: ImageSource.gallery, maxWidth: 512);
-                          if (picked != null) {
-                            setDlg(() => avatarPath = picked.path);
-                          }
-                        } catch (e) {
-                          debugPrint('选照片失败: $e');
-                        }
-                      },
-                      icon: const Icon(Icons.photo_library_outlined),
-                      tooltip: '从相册选头像',
-                    ),
-                    if (avatarPath.isNotEmpty)
-                      IconButton(
-                        onPressed: () => setDlg(() => avatarPath = ''),
-                        icon: const Icon(Icons.close),
-                        tooltip: '清除照片头像',
-                      ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Wrap(
-                            spacing: 4,
-                            children: [
-                              for (final e in _avatarEmojis)
-                                GestureDetector(
-                                  onTap: () => setDlg(() => emoji = e),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      color: emoji == e
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                              .withValues(alpha: 0.15)
-                                          : null,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(e,
-                                        style: const TextStyle(fontSize: 16)),
-                                  ),
-                                ),
-                            ],
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              try {
+                                final picked = await ImagePicker()
+                                    .pickImage(
+                                        source: ImageSource.gallery,
+                                        maxWidth: 512);
+                                if (picked != null) {
+                                  setDlg(() => avatarPath = picked.path);
+                                }
+                              } catch (e) {
+                                debugPrint('选照片失败: $e');
+                              }
+                            },
+                            icon: const Icon(Icons.photo_library_outlined,
+                                size: 18),
+                            label: Text(
+                                avatarPath.isEmpty ? '选择本地照片' : '更换照片'),
                           ),
-                          const SizedBox(height: 6),
-                          Wrap(
-                            spacing: 6,
-                            children: [
-                              for (final c in _avatarColors)
-                                GestureDetector(
-                                  onTap: () => setDlg(() => color = c),
-                                  child: Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: BoxDecoration(
-                                      color: c,
-                                      shape: BoxShape.circle,
-                                      border: color == c
-                                          ? Border.all(
-                                              width: 2,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary)
-                                          : null,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                          if (avatarPath.isNotEmpty)
+                            TextButton(
+                              onPressed: () => setDlg(() => avatarPath = ''),
+                              child: const Text('清除照片'),
+                            ),
                         ],
                       ),
                     ),
@@ -185,6 +142,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                 TextField(
                   controller: nameCtl,
                   autofocus: true,
+                  onChanged: (_) => setDlg(() {}),
                   decoration: const InputDecoration(labelText: '昵称'),
                 ),
                 const SizedBox(height: 8),
@@ -277,7 +235,8 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
               onPressed: () async {
                 final name = nameCtl.text.trim();
                 if (name.isEmpty) return;
-                final id = 'im_${DateTime.now().millisecondsSinceEpoch}';
+                final id = existing?.id ??
+                    'im_${DateTime.now().millisecondsSinceEpoch}';
                 // 照片头像复制进沙盒，持久化
                 var savedAvatarPath = '';
                 if (avatarPath.isNotEmpty) {
@@ -306,8 +265,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                       persona: personaCtl.text.trim(),
                       voiceEngine: voice == '默认' ? '' : voice,
                       voiceId: voiceCtl.text.trim(),
-                      avatar: emoji,
-                      avatarColor: color.toARGB32(),
+                      avatar: '',
                       avatarPath: savedAvatarPath,
                       memory: memoryCtl.text
                           .split('\n')
@@ -316,8 +274,11 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                           .toList(),
                       model: modelCtl.text.trim(),
                       localTools: localTools));
-                  // 自动建立会话（Rust append 自动维护会话列表）
-                  KelivoStore.append(id, 'assistant', '你好，我是$name，很高兴认识你！');
+                  // 新建时自动建立会话（Rust append 自动维护会话列表）；编辑不重复发欢迎语
+                  if (existing == null) {
+                    KelivoStore.append(
+                        id, 'assistant', '你好，我是$name，很高兴认识你！');
+                  }
                 } catch (e) {
                   debugPrint('添加好友失败: $e');
                   if (ctx.mounted) {
@@ -329,7 +290,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                 Navigator.pop(ctx);
                 _load();
               },
-              child: const Text('添加'),
+              child: Text(existing == null ? '添加' : '保存'),
             ),
           ],
         ),
@@ -426,7 +387,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (isFriend)
+            if (isFriend) ...[
               ListTile(
                 leading: const Icon(Icons.person_outline),
                 title: const Text('查看好友'),
@@ -438,6 +399,19 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                     : _friends.firstWhere((f) => f.id == s.id).note),
                 onTap: () => Navigator.pop(ctx),
               ),
+              ListTile(
+                leading: const Icon(Icons.edit_outlined),
+                title: const Text('编辑好友资料'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  ImFriend? target;
+                  for (final f in _friends) {
+                    if (f.id == s.id) target = f;
+                  }
+                  if (target != null) _friendSheet(existing: target);
+                },
+              ),
+            ],
             if (isGroup)
               ListTile(
                 leading: const Icon(Icons.people_outline),
@@ -512,7 +486,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
           IconButton(
             icon: const Icon(Icons.person_add_alt),
             tooltip: '添加好友',
-            onPressed: _addFriendSheet,
+            onPressed: () => _friendSheet(),
           ),
           IconButton(
             icon: const Icon(Icons.group_add),
@@ -532,7 +506,7 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                   const Text('还没有好友或群聊'),
                   const SizedBox(height: 8),
                   FilledButton.icon(
-                    onPressed: _addFriendSheet,
+                    onPressed: () => _friendSheet(),
                     icon: const Icon(Icons.person_add_alt),
                     label: const Text('添加第一位好友'),
                   ),
