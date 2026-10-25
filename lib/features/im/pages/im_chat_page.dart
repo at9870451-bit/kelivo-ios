@@ -136,7 +136,7 @@ class _ImChatPageState extends State<ImChatPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(widget.session.name,
-                style: const TextStyle(fontWeight: AppFontWeights.semibold)),
+                style: TextStyle(fontWeight: AppFontWeights.semibold)),
             Text('Rust Core 会话 · ${widget.session.kind}',
                 style: TextStyle(
                     fontSize: 11,

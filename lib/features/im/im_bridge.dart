@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io' show Platform;
 
+import 'package:ffi/ffi.dart';
+
 import 'package:flutter/services.dart' show MethodChannel;
 
 typedef _CallNative = Pointer<Utf8> Function(Pointer<Utf8>);
