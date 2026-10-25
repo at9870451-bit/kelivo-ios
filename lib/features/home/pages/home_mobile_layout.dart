@@ -107,21 +107,21 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
         userName: context.watch<UserProvider>().name,
         assistantName: _getAssistantName(context),
         closePickerTicker: widget.assistantPickerCloseTick,
-        widget.loadingConversationIds: widget.loadingConversationIds,
-        widget.globalSearchMode: widget.globalSearchMode,
-        widget.globalSearchQuery: widget.globalSearchQuery,
-        widget.onGlobalSearchQueryChanged: widget.onGlobalSearchQueryChanged,
-        widget.onEnterGlobalSearch: widget.onEnterGlobalSearch,
-        widget.onExitGlobalSearch: widget.onExitGlobalSearch,
-        widget.onOpenGlobalSearchResult: (conversationId, messageId) async {
+        loadingConversationIds: widget.loadingConversationIds,
+        globalSearchMode: widget.globalSearchMode,
+        globalSearchQuery: widget.globalSearchQuery,
+        onGlobalSearchQueryChanged: widget.onGlobalSearchQueryChanged,
+        onEnterGlobalSearch: widget.onEnterGlobalSearch,
+        onExitGlobalSearch: widget.onExitGlobalSearch,
+        onOpenGlobalSearchResult: (conversationId, messageId) async {
           await widget.onOpenGlobalSearchResult(conversationId, messageId);
           widget.drawerController.close();
         },
-        widget.onSelectConversation: (id, {closeDrawer = true}) {
+        onSelectConversation: (id, {closeDrawer = true}) {
           widget.onSelectConversation(id);
           if (closeDrawer) widget.drawerController.close();
         },
-        widget.onNewConversation: ({closeDrawer = true}) async {
+        onNewConversation: ({closeDrawer = true}) async {
           await widget.onCreateNewConversation();
           if (closeDrawer) widget.drawerController.close();
         },
@@ -135,8 +135,8 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
           backgroundColor: Colors.transparent,
           appBar: widget.appBarOverride ?? _buildAppBar(context, cs),
           // 底部导航栏：聊天 / 设置（UI 设置部分改到底部导航栏）
-          widget.body: _tab == 0
-              ? widget.body
+          body: _tab == 0
+              ? body
               : const SettingsPage(),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _tab,
@@ -211,7 +211,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
         },
       ),
       titleSpacing: 2,
-      widget.title: useNewAssistantAvatarUx
+      title: useNewAssistantAvatarUx
           ? Row(
               children: [
                 _buildAssistantTitleAvatar(context),
