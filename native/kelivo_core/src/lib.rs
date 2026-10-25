@@ -7,7 +7,7 @@ mod util;
 use std::ffi::{CStr, CString, c_char};
 
 /// 解析入参：{"method": "...", "params": {...}}
-fn payload(input: &str) -> (String, serde_json::Value) {
+fn parse_payload(input: &str) -> (String, serde_json::Value) {
     let v: serde_json::Value = serde_json::from_str(input).unwrap_or(serde_json::Value::Null);
     let method = v
         .get("method")
@@ -107,15 +107,15 @@ fn dispatch(method: &str, p: &serde_json::Value) -> Option<serde_json::Value> {
 
 /// FFI 入口：入参 JSON 字符串 → 返回 JSON 字符串（调用方负责释放）
 #[no_mangle]
-pub extern "C" fn kelivo_call(payload: *const c_char) -> *mut c_char {
+pub extern "C" fn kelivo_call(payload_ptr: *const c_char) -> *mut c_char {
     let input = unsafe {
-        if payload.is_null() {
+        if payload_ptr.is_null() {
             String::new()
         } else {
-            CStr::from_ptr(payload).to_string_lossy().to_string()
+            CStr::from_ptr(payload_ptr).to_string_lossy().to_string()
         }
     };
-    let (method, params) = payload(&input);
+    let (method, params) = parse_payload(&input);
     let out = match dispatch(&method, &params) {
         Some(data) => ok(data),
         None => err("unknown_method", &format!("未实现的方法: {method}")),
