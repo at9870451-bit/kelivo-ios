@@ -43,11 +43,18 @@ jobs:
           EOF
           fi
 
-      - name: 沙箱脚本权限 + 构建 iOS（未签名）
+      - name: 沙箱构建工具
+        run: |
+          brew install meson ninja llvm lld 2>&1 | tail -5
+
+      - name: 准备 iSH 沙箱产物
+        run: |
+          chmod +x ios/sandbox/*.sh tool/*.sh 2>/dev/null || true
+          ios/sandbox/ensure_artifacts.sh 2>&1 | tail -30
+
+      - name: 构建 iOS（未签名）
         run: |
           set -o pipefail
-          chmod +x ios/sandbox/*.sh 2>/dev/null || true
-          chmod +x tool/*.sh 2>/dev/null || true
           flutter build ios --release --no-codesign 2>&1 | tee build.log | tail -60
 
       - name: 打包 ipa
