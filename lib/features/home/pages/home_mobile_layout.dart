@@ -244,7 +244,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(vertical: 0),
                               child: AnimatedTextSwap(
-                                text: '$widget.modelDisplay ($widget.providerName)',
+                                text: '${widget.modelDisplay} (${widget.providerName})',
                                 style: TextStyle(
                                   fontSize: 11,
                                   color: cs.onSurface.withValues(alpha: 0.6),
@@ -281,7 +281,7 @@ class _HomeMobileScaffoldState extends State<HomeMobileScaffold> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 0),
                         child: AnimatedTextSwap(
-                          text: '$widget.modelDisplay ($widget.providerName)',
+                          text: '${widget.modelDisplay} (${widget.providerName})',
                           style: TextStyle(
                             fontSize: 11,
                             color: cs.onSurface.withValues(alpha: 0.6),
