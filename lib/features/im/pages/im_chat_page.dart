@@ -11,6 +11,7 @@ import 'package:Kelivo/core/providers/settings_provider.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
 
 import '../im_store.dart';
+import '../widgets/im_avatar.dart';
 
 class ImChatPage extends StatefulWidget {
   final ImSession session;
@@ -68,8 +69,19 @@ class _ImChatPageState extends State<ImChatPage> {
       final tag = '[图片] ${a.content}';
       KelivoStore.append(widget.session.id, 'user', tag);
     }
-    // AI 好友：调用模型生成回复；无模型/失败则模拟回复
+    // AI 好友：调用模型生成真实回复（不再模拟）
     final reply = await _generateReply(text);
+    if (reply == null) {
+      if (mounted) {
+        setState(() => _sending = false);
+        _reload();
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('无法获取 AI 回复：请在设置中配置模型，或为该好友设置专属模型'),
+                duration: Duration(seconds: 4)));
+      }
+      return;
+    }
     if (mounted) {
       KelivoStore.append(widget.session.id, 'assistant', reply);
       final all = KelivoStore.messages(widget.session.id);
@@ -93,11 +105,11 @@ class _ImChatPageState extends State<ImChatPage> {
     return null;
   }
 
-  /// AI 回复：好友有专属模型（或全局模型）时调用；否则模拟回复
-  Future<String> _generateReply(String text) async {
-    if (text.isEmpty) return '（已读）收到～';
+  /// AI 回复：好友有专属模型（或全局模型）时真实调用；无配置返回 null（不产生假回复）
+  Future<String?> _generateReply(String text) async {
+    if (text.isEmpty) return null;
     final friend = _findFriend();
-    if (friend == null) return '（已读）收到～';
+    if (friend == null) return null;
 
     String? model = friend.model.isNotEmpty ? friend.model : null;
     String? baseUrl;
@@ -113,11 +125,13 @@ class _ImChatPageState extends State<ImChatPage> {
       model ??= settings.currentModelId;
     } catch (_) {}
 
-    if (baseUrl == null || baseUrl.isEmpty || apiKey == null || apiKey.isEmpty) {
-      return '（已读）收到～';
-    }
-    if (model == null || model.isEmpty) {
-      return '（已读）收到～';
+    if (baseUrl == null ||
+        baseUrl.isEmpty ||
+        apiKey == null ||
+        apiKey.isEmpty ||
+        model == null ||
+        model.isEmpty) {
+      return null; // 没有可用模型/配置——不产生假回复
     }
 
     // 组装最近历史（≤10 条）
@@ -153,8 +167,11 @@ class _ImChatPageState extends State<ImChatPage> {
             },
             body: jsonEncode({
               'model': model,
-              if (system.isNotEmpty) 'system': system,
-              'messages': msgs,
+              'messages': [
+                if (system.isNotEmpty)
+                  {'role': 'system', 'content': system},
+                ...msgs,
+              ],
               'stream': false,
             }),
           )
@@ -172,7 +189,7 @@ class _ImChatPageState extends State<ImChatPage> {
     } catch (e) {
       debugPrint('AI 回复失败: $e');
     }
-    return '（已读）收到～';
+    return null;
   }
 
   Future<void> _attachMenu() async {
@@ -226,16 +243,29 @@ class _ImChatPageState extends State<ImChatPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
           children: [
-            Text(widget.session.name,
-                style: TextStyle(fontWeight: AppFontWeights.semibold)),
-            Text('Rust Core 会话 · ${widget.session.kind}',
-                style: TextStyle(
-                    fontSize: 11,
-                    color: cs.onSurfaceVariant,
-                    fontWeight: FontWeight.normal)),
+            ImAvatar(
+              name: widget.session.name,
+              avatar: widget.session.avatar,
+              isGroup: widget.session.kind == 'group',
+              size: 34,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(widget.session.name,
+                      style: TextStyle(fontWeight: AppFontWeights.semibold)),
+                  Text('Rust Core 会话 · ${widget.session.kind}',
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: cs.onSurfaceVariant,
+                          fontWeight: FontWeight.normal)),
+                ],
+              ),
+            ),
           ],
         ),
         actions: [
@@ -350,15 +380,11 @@ class _ImChatPageState extends State<ImChatPage> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!isMine) ...[
-            Container(
-              width: 30, height: 30,
-              decoration: const BoxDecoration(
-                  color: Color(0xFF5FA8D3), shape: BoxShape.circle),
-              alignment: Alignment.center,
-              child: Text(widget.session.avatar.isEmpty
-                  ? widget.session.name.characters.first
-                  : widget.session.avatar,
-                  style: const TextStyle(color: Colors.white, fontSize: 13)),
+            ImAvatar(
+              name: widget.session.name,
+              avatar: widget.session.avatar,
+              isGroup: widget.session.kind == 'group',
+              size: 30,
             ),
             const SizedBox(width: 8),
           ],

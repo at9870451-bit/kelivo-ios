@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:Kelivo/theme/app_font_weights.dart';
 
 import '../im_store.dart';
+import '../widgets/im_avatar.dart';
 import 'im_chat_page.dart';
 
 class ImSessionListPage extends StatefulWidget {
@@ -330,13 +331,10 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                             dense: true,
                             value: selected.contains(f.id),
                             title: Text(f.name),
-                            secondary: CircleAvatar(
-                                backgroundColor: const Color(0xFF5FA8D3),
-                                child: Text(f.avatar.isEmpty
-                                    ? f.name.characters.first
-                                    : f.avatar,
-                                    style: const TextStyle(
-                                        color: Colors.white, fontSize: 14))),
+                            secondary: ImAvatar(
+                                name: f.name,
+                                avatar: f.avatarPath,
+                                size: 40),
                             onChanged: (v) => setDlg(() {
                               if (v == true) {
                                 selected.add(f.id);
@@ -403,12 +401,17 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                 leading: const Icon(Icons.edit_outlined),
                 title: const Text('编辑好友资料'),
                 onTap: () {
-                  Navigator.pop(ctx);
                   ImFriend? target;
                   for (final f in _friends) {
                     if (f.id == s.id) target = f;
                   }
-                  if (target != null) _friendSheet(existing: target);
+                  Navigator.pop(ctx);
+                  if (target != null) {
+                    Future.microtask(() => _friendSheet(existing: target));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('找不到好友资料')));
+                  }
                 },
               ),
             ],
@@ -435,10 +438,17 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                 title:
                     const Text('删除好友', style: TextStyle(color: Colors.red)),
                 onTap: () {
-                  KelivoStore.clear(s.id);
-                  KelivoContacts.deleteFriend(s.id);
                   Navigator.pop(ctx);
-                  _load();
+                  try {
+                    KelivoContacts.deleteFriend(s.id);
+                  } catch (e) {
+                    debugPrint('删除好友失败: $e');
+                  }
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('好友已删除')));
+                    _load();
+                  }
                 },
               ),
             if (isGroup)
@@ -447,10 +457,17 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                     const Icon(Icons.group_remove_outlined, color: Colors.red),
                 title: const Text('解散群聊', style: TextStyle(color: Colors.red)),
                 onTap: () {
-                  KelivoStore.clear(s.id);
-                  KelivoContacts.deleteGroup(s.id);
                   Navigator.pop(ctx);
-                  _load();
+                  try {
+                    KelivoContacts.deleteGroup(s.id);
+                  } catch (e) {
+                    debugPrint('解散群聊失败: $e');
+                  }
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('群聊已解散')));
+                    _load();
+                  }
                 },
               ),
           ],
@@ -555,33 +572,6 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
     );
   }
 
-  Widget _avatar(ImSession s, bool isGroup) {
-    final color = isGroup ? const Color(0xFF6E8B5E) : const Color(0xFF5FA8D3);
-    // 好友照片头像（avatar 字段若为本地路径则显示照片）
-    final avatarPath = !isGroup && s.avatar.startsWith('/')
-        ? s.avatar
-        : '';
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      alignment: Alignment.center,
-      child: ClipOval(
-        child: avatarPath.isNotEmpty
-            ? Image.file(File(avatarPath),
-                width: 48, height: 48, fit: BoxFit.cover)
-            : Center(
-                child: Text(
-                    isGroup
-                        ? '群'
-                        : (s.avatar.isEmpty
-                            ? s.name.characters.first
-                            : s.avatar),
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isGroup ? 14 : 18,
-                        fontWeight: FontWeight.w600))),
-      ),
-    );
-  }
+  Widget _avatar(ImSession s, bool isGroup) =>
+      ImAvatar(name: s.name, avatar: s.avatar, isGroup: isGroup, size: 48);
 }
