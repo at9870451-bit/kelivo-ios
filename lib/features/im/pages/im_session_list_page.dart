@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:Kelivo/theme/app_font_weights.dart';
 
+import '../../model/widgets/model_select_sheet.dart';
 import '../im_store.dart';
 import '../widgets/im_avatar.dart';
 import 'im_chat_page.dart';
@@ -68,8 +69,10 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
     final voiceCtl = TextEditingController(text: existing?.voiceId ?? '');
     final memoryCtl = TextEditingController(
         text: (existing?.memory ?? const []).join('\n'));
-    final modelCtl = TextEditingController(text: existing?.model ?? '');
+    // 模型选择改用 kelivo 原生选择器（与「会话」里一致）
     var gender = existing?.gender.isNotEmpty == true ? existing!.gender : 'female';
+    var selProvider = existing?.modelProvider ?? '';
+    var selModel = existing?.model ?? '';
     var localTools = existing?.localTools ?? true;
     var avatarPath = existing?.avatarPath ?? '';
     var voice = (existing?.voiceEngine?.isNotEmpty == true)
@@ -190,11 +193,31 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                       hintText: '例如：\n喜欢去海边散步\n生日是 6 月 18 日'),
                 ),
                 const SizedBox(height: 8),
-                TextField(
-                  controller: modelCtl,
-                  decoration: const InputDecoration(
-                      labelText: '专属模型（空=跟随全局）',
-                      hintText: '例如：gpt-4o-mini'),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.smart_toy_outlined),
+                  title: const Text('专属模型'),
+                  subtitle: Text(selModel.isEmpty
+                      ? '跟随全局'
+                      : (selProvider.isNotEmpty
+                          ? '$selProvider · $selModel'
+                          : selModel)),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () async {
+                    final sel = await showModelSelector(
+                      ctx,
+                      initialProviderKey:
+                          selProvider.isEmpty ? null : selProvider,
+                      initialModelId: selModel.isEmpty ? null : selModel,
+                      allowInherit: true,
+                    );
+                    if (sel != null) {
+                      setDlg(() {
+                        selProvider = sel.providerKey;
+                        selModel = sel.modelId;
+                      });
+                    }
+                  },
                 ),
                 SwitchListTile(
                   value: localTools,
@@ -273,7 +296,8 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
                           .map((e) => e.trim())
                           .where((e) => e.isNotEmpty)
                           .toList(),
-                      model: modelCtl.text.trim(),
+                      model: selModel,
+                      modelProvider: selProvider,
                       localTools: localTools));
                   // 新建时自动建立会话（Rust append 自动维护会话列表）；编辑不重复发欢迎语
                   if (existing == null) {
@@ -377,8 +401,9 @@ class _ImSessionListPageState extends State<ImSessionListPage> {
 
   // ---- 长按会话：查看联系人/删除 ----
   void _sessionMenu(ImSession s) {
-    final isFriend = _friends.any((f) => f.id == s.id);
-    final isGroup = _groups.any((g) => g.id == s.id);
+    // 用 session.kind 判断（不依赖 _friends/_groups 列表是否加载成功）
+    final isFriend = s.kind == 'friend';
+    final isGroup = s.kind == 'group';
     showModalBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(

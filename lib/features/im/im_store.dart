@@ -154,7 +154,8 @@ class ImFriend {
   final int avatarColor;
   final String avatarPath; // 本地照片头像路径（空=用 emoji/文字）
   final List<String> memory; // 长期记忆
-  final String model; // 专属模型（空=全局）
+  final String model; // 专属模型 id（空=全局）
+  final String modelProvider; // 专属模型 provider key
   final bool localTools; // 本地工具开关
 
   const ImFriend({
@@ -171,6 +172,7 @@ class ImFriend {
     this.avatarPath = '',
     List<String>? memory,
     this.model = '',
+    this.modelProvider = '',
     this.localTools = true,
   }) : memory = memory ?? const [];
 
@@ -189,6 +191,7 @@ class ImFriend {
         memory: (j['memory'] as List?)?.map((e) => e.toString()).toList() ??
             const [],
         model: j['model']?.toString() ?? '',
+        modelProvider: j['modelProvider']?.toString() ?? '',
         localTools: j['localTools'] as bool? ?? true,
       );
 
@@ -208,6 +211,7 @@ class ImFriend {
         'avatarPath': avatarPath,
         'memory': memory,
         'model': model,
+        'modelProvider': modelProvider,
         'localTools': localTools,
       };
 }

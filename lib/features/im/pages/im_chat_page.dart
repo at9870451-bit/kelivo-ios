@@ -112,11 +112,15 @@ class _ImChatPageState extends State<ImChatPage> {
     if (friend == null) return null;
 
     String? model = friend.model.isNotEmpty ? friend.model : null;
+    String? providerKey = friend.modelProvider.isNotEmpty
+        ? friend.modelProvider
+        : null;
     String? baseUrl;
     String? apiKey;
     try {
       final settings = context.read<SettingsProvider>();
-      final providerKey = settings.currentModelProvider;
+      // 优先好友专属 provider，否则全局当前 provider
+      providerKey ??= settings.currentModelProvider;
       if (providerKey != null && providerKey.isNotEmpty) {
         final cfg = settings.getProviderConfig(providerKey);
         baseUrl = cfg.baseUrl.trim();
