@@ -152,7 +152,7 @@ class ModelDefaultsGuesser {
             r'qwen-?3|doubao.+(?:1([-.])(?:6|8)|seed-2|seed-evolving)|grok-4|kimi-k2|'
             r'kimi-k3(?:$|[/_:@.-])|muse-spark-1(?:$|[/_:@.-])|'
             r'step-3|intern-s1|glm-4([-.])(?:5|6|7)|glm-5|minimax-(?:m2|m3)|'
-            r'deepseek-(?:r1|v3\.1|v3\.2|v4|flash)|'
+            r'deepseek-(?:r1|v3\.1|v3\.2|flash)|'
             r'deepseek-reasoner|'
             r'mimo-v2|'
             r'laguna'
