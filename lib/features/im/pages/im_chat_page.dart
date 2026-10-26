@@ -119,12 +119,37 @@ class _ImChatPageState extends State<ImChatPage> {
     String? apiKey;
     try {
       final settings = context.read<SettingsProvider>();
-      // 优先好友专属 provider，否则全局当前 provider
+      // 1) 好友专属 provider，2) 全局当前 provider，3) 任意已配置的可用 provider
       providerKey ??= settings.currentModelProvider;
       if (providerKey != null && providerKey.isNotEmpty) {
         final cfg = settings.getProviderConfig(providerKey);
         baseUrl = cfg.baseUrl.trim();
         apiKey = cfg.apiKey.trim();
+        if (model == null || model.isEmpty) {
+          model = _firstModel(cfg);
+        }
+      }
+      // 兜底：遍历所有 provider，找第一个 enabled、有模型、有 key 的
+      if (baseUrl == null ||
+          baseUrl.isEmpty ||
+          apiKey == null ||
+          apiKey.isEmpty ||
+          model == null ||
+          model.isEmpty) {
+        ProviderConfig? cfg;
+        for (final c in settings.providerConfigs.values) {
+          final m = _firstModel(c);
+          if (c.enabled && m != null && c.apiKey.trim().isNotEmpty) {
+            cfg = c;
+            model = m;
+            break;
+          }
+        }
+        if (cfg != null) {
+          baseUrl = cfg.baseUrl.trim();
+          apiKey = cfg.apiKey.trim();
+          providerKey = cfg.id;
+        }
       }
       model ??= settings.currentModelId;
     } catch (_) {}
@@ -192,6 +217,15 @@ class _ImChatPageState extends State<ImChatPage> {
       }
     } catch (e) {
       debugPrint('AI 回复失败: $e');
+    }
+    return null;
+  }
+
+  /// provider 的第一个可用模型 id（models 优先，modelOverrides key 兜底）
+  String? _firstModel(ProviderConfig cfg) {
+    if (cfg.models.isNotEmpty) return cfg.models.first;
+    if (cfg.modelOverrides.isNotEmpty) {
+      return cfg.modelOverrides.keys.first;
     }
     return null;
   }
