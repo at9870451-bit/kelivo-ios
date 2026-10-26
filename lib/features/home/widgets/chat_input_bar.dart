@@ -3863,9 +3863,20 @@ class _ChatInputBarState extends State<ChatInputBar>
                           filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
                           child: Container(
                             decoration: BoxDecoration(
-                              // 无背景：去掉输入框填充色与边框（纯内容）
-                              color: Colors.transparent,
+                              // Translucent background over blurred content
+                              color: inputFillColor,
                               borderRadius: BorderRadius.circular(20),
+                              // Use previous gray border for better contrast on white
+                              border: Border.all(
+                                color: isDark
+                                    ? theme.colorScheme.onSurface.withValues(
+                                        alpha: 0.10,
+                                      )
+                                    : theme.colorScheme.outline.withValues(
+                                        alpha: 0.20,
+                                      ),
+                                width: 1,
+                              ),
                             ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
