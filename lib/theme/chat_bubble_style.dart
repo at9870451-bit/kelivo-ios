@@ -220,7 +220,7 @@ ResolvedBubbleStyle resolveBubbleStyle(
         .withValues(alpha: borderOpacity),
     text: textArgb != null ? Color(textArgb) : cs.onSurface,
     borderWidth: overrides.borderWidth ?? 0.8,
-    radius: overrides.cornerRadius ?? 16,
+    radius: overrides.cornerRadius ?? 20,
     blurSigma: overrides.blurSigma ?? 14,
   );
 }

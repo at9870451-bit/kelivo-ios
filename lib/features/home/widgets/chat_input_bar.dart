@@ -3853,31 +3853,42 @@ class _ChatInputBarState extends State<ChatInputBar>
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    // Main input container with iOS-like frosted glass effect
+                    // Main input container with iOS-like frosted glass effect — Apple Liquid Glass panel (white 85% / blur 30 / radius 26 / hairline border)
                     _buildExpandingComposer(
                       expandedLayout,
-                      ClipRRect(
-                        key: _composerKey,
-                        borderRadius: BorderRadius.circular(20),
-                        child: BackdropFilter(
-                          filter: ui.ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              // Translucent background over blurred content
-                              color: inputFillColor,
-                              borderRadius: BorderRadius.circular(20),
-                              // Use previous gray border for better contrast on white
-                              border: Border.all(
-                                color: isDark
-                                    ? theme.colorScheme.onSurface.withValues(
-                                        alpha: 0.10,
-                                      )
-                                    : theme.colorScheme.outline.withValues(
-                                        alpha: 0.20,
-                                      ),
-                                width: 1,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10, 2, 10, 8),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(26),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.06),
+                                blurRadius: 20,
+                                offset: const Offset(0, 5),
                               ),
-                            ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            key: _composerKey,
+                            borderRadius: BorderRadius.circular(26),
+                            child: BackdropFilter(
+                              filter: ui.ImageFilter.blur(
+                                sigmaX: 30,
+                                sigmaY: 30,
+                              ),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  // Translucent background over blurred content
+                                  color: inputFillColor,
+                                  borderRadius: BorderRadius.circular(26),
+                                  border: Border.all(
+                                    color: isDark
+                                        ? Colors.white.withValues(alpha: 0.12)
+                                        : Colors.white.withValues(alpha: 0.65),
+                                    width: 0.5,
+                                  ),
+                                ),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -4354,6 +4365,8 @@ class _ChatInputBarState extends State<ChatInputBar>
                             ),
                           ),
                         ),
+                      ),
+                      ),
                       ),
                     ),
                     if (_imageModeActive)

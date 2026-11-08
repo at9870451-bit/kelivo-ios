@@ -652,8 +652,8 @@ class _GlassCircleButtonState extends State<_GlassCircleButton> {
 }
 
 
-/// 🪟 Liquid Glass 底部导航栏：悬浮毛玻璃——26px 背景模糊 + 半透明白 78% +
-/// 白色细边框 + 圆角 26 + 上投轻阴影 + 胶囊形选中态（系统蓝 12% 底）+ SafeArea
+/// 🪟 Liquid Glass 底部导航栏：悬浮毛玻璃——30px 背景模糊 + 半透明白 82% +
+/// 白色细边框 + 圆角 28 + 轻阴影 + 胶囊形选中态（系统蓝 12% 底）+ SafeArea
 class _GlassNavBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelect;
@@ -677,27 +677,28 @@ class _GlassNavBar extends StatelessWidget {
       top: false,
       minimum: const EdgeInsets.fromLTRB(14, 0, 14, 10),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(28),
         child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 26, sigmaY: 26),
+          filter: ui.ImageFilter.blur(sigmaX: 30, sigmaY: 30),
           child: Container(
             height: 58,
             decoration: BoxDecoration(
               color: isDark
                   ? const Color(0xFF101725).withValues(alpha: 0.86)
-                  : Colors.white.withValues(alpha: 0.78),
+                  : Colors.white.withValues(alpha: 0.82),
               // 细腻白色边框
               border: Border.all(
                 color: isDark
                     ? Colors.white.withValues(alpha: 0.10)
-                    : Colors.white.withValues(alpha: 0.75),
+                    : Colors.white.withValues(alpha: 0.65),
+                width: 0.5,
               ),
               // 上投轻阴影（悬浮感）
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.05),
-                  blurRadius: 18,
-                  offset: const Offset(0, -3),
+                  color: Colors.black.withValues(alpha: isDark ? 0.30 : 0.07),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
